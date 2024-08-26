@@ -17,12 +17,21 @@ function MesaApp() {
   const renderMesas = () => {
     const mesas = [];
     for (let i = 1; i <= numMesas; i++) {
-      const isMesaInAtendimento = orders[i] && orders[i].inAtendimento;
+      const order = orders[i];
+      let buttonClass = 'btn-success';
+
+      if (order) {
+        if (order.status === 'aguardandoPagamento') {
+          buttonClass = 'btn-warning';
+        } else if (order.status === 'emAtendimento') {
+          buttonClass = 'btn-primary';
+        }
+      }
 
       mesas.push(
         <div key={i} className="col mb-3">
           <button
-            className={`btn w-100 ${isMesaInAtendimento ? 'btn-primary' : 'btn-success'}`}
+            className={`btn w-100 ${buttonClass}`}
             onClick={() => handleMesaClick(i)}
           >
             {i}
@@ -36,10 +45,10 @@ function MesaApp() {
   const handleMesaClick = (mesaId) => {
     setSelectedMesa(mesaId);
 
-    if (orders[mesaId]) {
-      // Se a mesa já está em atendimento, mostrar o pop-up do pedido existente
+    if (orders[mesaId] && orders[mesaId].status !== 'pago') {
+      // Se a mesa já está em atendimento ou aguardando pagamento, mostrar o pop-up do pedido existente
       setShowOrderPopup(true);
-    } else {
+    } else if (!orders[mesaId]) {
       // Se a mesa não está em atendimento, mostrar o pop-up para iniciar o atendimento
       setShowPopup(true);
     }
@@ -53,7 +62,7 @@ function MesaApp() {
   const initiateOrder = () => {
     setOrders((prevOrders) => ({
       ...prevOrders,
-      [selectedMesa]: { inAtendimento: true, total: 0, items: [] },
+      [selectedMesa]: { status: 'emAtendimento', total: 0, items: [] },
     }));
     setShowPopup(false);
     setShowOrderPopup(true);
@@ -72,6 +81,33 @@ function MesaApp() {
         [selectedMesa]: updatedOrder,
       };
     });
+  };
+
+  const closeOrder = () => {
+    // Verificar se há itens no pedido antes de mudar o estado para "aguardandoPagamento"
+    if (orders[selectedMesa].items.length > 0) {
+      setOrders((prevOrders) => ({
+        ...prevOrders,
+        [selectedMesa]: { ...prevOrders[selectedMesa], status: 'aguardandoPagamento' },
+      }));
+    } else {
+      // Se não houver itens, cancelar o atendimento e liberar a mesa
+      setOrders((prevOrders) => {
+        const updatedOrders = { ...prevOrders };
+        delete updatedOrders[selectedMesa];
+        return updatedOrders;
+      });
+    }
+    closePopup();
+  };
+
+  const markAsPaid = (mesaId) => {
+    setOrders((prevOrders) => {
+      const updatedOrders = { ...prevOrders };
+      delete updatedOrders[mesaId]; // Remove o pedido da mesa para liberá-la
+      return updatedOrders;
+    });
+    closePopup();
   };
 
   return (
@@ -118,13 +154,23 @@ function MesaApp() {
               ))}
             </ul>
             <h5 className="mt-3">Itens no Pedido:</h5>
-            <ul className="list-group">
+            <ul className="list-group mb-3">
               {orders[selectedMesa].items.map((item, index) => (
                 <li key={index} className="list-group-item">
                   {item.name} - R${item.price.toFixed(2)}
                 </li>
               ))}
             </ul>
+            {orders[selectedMesa].status === 'emAtendimento' && (
+              <button onClick={closeOrder} className="btn btn-danger w-100">
+                Fechar Comanda
+              </button>
+            )}
+            {orders[selectedMesa].status === 'aguardandoPagamento' && (
+              <button onClick={() => markAsPaid(selectedMesa)} className="btn btn-success w-100">
+                Marcar como Pago
+              </button>
+            )}
           </div>
         </div>
       )}
