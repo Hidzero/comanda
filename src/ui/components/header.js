@@ -4,7 +4,7 @@ export default function Header() {
     return (
         <nav class="navbar navbar-expand-lg navbar-dark torresmoColor">
         <div class="container-fluid">
-            <a class="navbar-brand" href="#">Navbar</a>
+            <a class="navbar-brand" href="TODO">Navbar</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDarkDropdown" aria-controls="navbarNavDarkDropdown" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
             </button>
@@ -15,9 +15,9 @@ export default function Header() {
                     Dropdown
                 </button>
                 <ul class="dropdown-menu text-light torresmoColor">
-                    <li><a class="dropdown-item" href="#">Action</a></li>
-                    <li><a class="dropdown-item" href="#">Another action</a></li>
-                    <li><a class="dropdown-item" href="#">Something else here</a></li>
+                    <li><a class="dropdown-item" href="TODO">Action</a></li>
+                    <li><a class="dropdown-item" href="TODO">Another action</a></li>
+                    <li><a class="dropdown-item" href="TODO">Something else here</a></li>
                 </ul>
                 </li>
             </ul>

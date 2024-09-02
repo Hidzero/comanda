@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import Cardapio from './cardapio';
+// import { Cardapio } from 'Cardapio.js'
 
 function MesaApp() {
-  const [numMesas, setNumMesas] = useState(100);
+  const [numMesas] = useState(100);
   const [selectedMesa, setSelectedMesa] = useState(null);
   const [showPopup, setShowPopup] = useState(false);
   const [showOrderPopup, setShowOrderPopup] = useState(false);
@@ -31,7 +33,7 @@ function MesaApp() {
       mesas.push(
         <div key={i} className="col mb-3">
           <button
-            className={`btn w-100 ${buttonClass}`}
+            className={`btn btn-lg w-100 fs-1 ${buttonClass}`}
             onClick={() => handleMesaClick(i)}
           >
             {i}
@@ -133,7 +135,7 @@ function MesaApp() {
 
       {showOrderPopup && (
         <div className="popup-overlay">
-          <div className="popup-content">
+          <div className="popup-content w">
             <span className="close-popup" onClick={closePopup}>
               &times;
             </span>
@@ -141,7 +143,8 @@ function MesaApp() {
             <p>Total: R${orders[selectedMesa].total.toFixed(2)}</p>
             <h5>Itens do Cardápio:</h5>
             <ul className="list-group">
-              {menuItems.map((item, index) => (
+              <Cardapio />
+              {/* {menuItems.map((item, index) => (
                 <li key={index} className="list-group-item">
                   {item.name} - R${item.price.toFixed(2)}
                   <button
@@ -151,7 +154,7 @@ function MesaApp() {
                     Adicionar
                   </button>
                 </li>
-              ))}
+              ))} */}
             </ul>
             <h5 className="mt-3">Itens no Pedido:</h5>
             <ul className="list-group mb-3">
@@ -221,6 +224,18 @@ function MesaApp() {
           display: flex;
           justify-content: space-between;
           align-items: center;
+        }
+
+        .w {
+          width: 1180px;
+        }
+
+        @media (max-width: 1570px) {
+          .w {
+            width: 75%;
+          }
+        }
+
         }
       `}</style>
     </div>
