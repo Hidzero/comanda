@@ -1,10 +1,10 @@
-// App.js
+// cardapio.js
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import MenuList from './menuList';
-import { combosData, porcoesSeparadasData } from './menuData';
+import { combosData, porcoesSeparadasData, meiaPorcao, churrascoNoPalito, naoAlcoolicos, drinksProntos, cerveja600ml, longNeck } from './menuData';
 
-function Cardapio() {
+function Cardapio({ handleAddItem }) {
   return (
     <Router>
       <div>
@@ -22,9 +22,14 @@ function Cardapio() {
         </nav>
 
         <Routes>
-          <Route path="/combos" element={<MenuList items={combosData} />} />
-          <Route path="/porcoes-separadas" element={<MenuList items={porcoesSeparadasData} />} />
-          {/* Adicione mais rotas conforme necessário */}
+          <Route path="/combos" element={<MenuList items={combosData} handleAddItem={handleAddItem} />} />
+          <Route path="/porcoes-separadas" element={<MenuList items={porcoesSeparadasData} handleAddItem={handleAddItem} />} />
+          <Route path="/meia-porcao" element={<MenuList items={meiaPorcao} handleAddItem={handleAddItem} />} />
+          <Route path="/churrasco-no-palito" element={<MenuList items={churrascoNoPalito} handleAddItem={handleAddItem} />} />
+          <Route path="/nao-alcoolicos" element={<MenuList items={naoAlcoolicos} handleAddItem={handleAddItem} />} />
+          <Route path="/drinks-prontos" element={<MenuList items={drinksProntos} handleAddItem={handleAddItem} />} />
+          <Route path="/cerveja-600ml" element={<MenuList items={cerveja600ml} handleAddItem={handleAddItem} />} />
+          <Route path="/long-neck" element={<MenuList items={longNeck} handleAddItem={handleAddItem} />} />
         </Routes>
       </div>
       <style jsx="true">
