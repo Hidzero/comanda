@@ -241,7 +241,7 @@ function MesaApp() {
         }
 
         .items-container {
-          max-height: calc(100vh - 400px); /* Ajuste essa altura conforme necessário */
+          max-height: 150px;
           overflow-y: auto;
           margin-bottom: 10px;
         }
@@ -271,6 +271,7 @@ function MesaApp() {
           padding: 20px;
           border-radius: 5px;
           width: 300px;
+          max-height: 80vh;
           text-align: center;
           position: relative;
         }
@@ -309,6 +310,11 @@ function MesaApp() {
             width: 75%;
           }
         }
+        .items-container {
+          max-height: 150px;
+          overflow-y: auto;
+          margin-bottom: 10px;
+        }
 
         textarea.form-control {
           width: 100%;
@@ -317,6 +323,19 @@ function MesaApp() {
 
         .btn-secondary {
           margin-left: 10px;
+        }
+
+        @media (max-width: 630px) {
+          .popup-content {
+            width: 90%;
+            height: 90%;
+          }
+
+        .items-container {
+          max-height: 120px;
+          overflow-y: auto;
+          margin-bottom: 10px;
+        }
         }
       `}</style>
     </div>

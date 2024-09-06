@@ -8,7 +8,7 @@ function Cardapio({ handleAddItem }) {
   return (
     <Router>
       <div>
-        <nav>
+        <nav className='height'>
           <ul className="menu-bar mb-3 d-flex">
             <li className="menu-item"><Link to="/combos">Combos</Link></li>
             <li className="menu-item"><Link to="/porcoes-separadas">Porções Separadas</Link></li>
@@ -49,8 +49,8 @@ function Cardapio({ handleAddItem }) {
           .menu-item {
             display: inline-block;
             flex: 0 0 auto;
-            height: 60px;
-            line-height: 60px;
+            height: 40px;
+            line-height: 40px;
             padding: 0 5px;
             white-space: nowrap;
           }
@@ -75,6 +75,17 @@ function Cardapio({ handleAddItem }) {
           /* Estilo para garantir que o conteúdo não seja cortado */
           .menu-bar::-webkit-scrollbar {
             display: none; /* Esconde a barra de rolagem */
+          }
+
+          @media (max-width: 630px) {
+          .menu-item {
+            display: inline-block;
+            flex: 0 0 auto;
+            height: 40px;
+            line-height: 40px;
+            padding: 0 5px;
+            white-space: nowrap;
+          }
           }
         `}
       </style>

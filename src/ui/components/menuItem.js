@@ -1,11 +1,10 @@
-// MenuItem.js
 import React from 'react';
 
 const MenuItem = ({ name, price, description, item, handleAddItem }) => (
-  <div className="d-flex flex-column rounded w-50 bg-custom justify-content-center mx-2 p-3 card-container">
-    <div className="flex-grow-1">
-      <h3 className="word-wrap">{name}</h3>
-      <p>{description}</p>
+  <div className="d-flex flex-column rounded w-50 bg-custom justify-content-center mx-2 p-3 card-container h-min w-max">
+    <div className="flex-grow-1 flex-row">
+      <h3 className="word-wrap media">{name}</h3>
+      <p className='align-items-end'>{description}</p>
       <span>R$ {price.toFixed(2)}</span>
     </div>
     <div className="mt-auto">
@@ -22,6 +21,8 @@ const MenuItem = ({ name, price, description, item, handleAddItem }) => (
         .bg-custom {
             background-color: #e9ecf0;
         }
+
+        
         .word-wrap {
             white-space: normal;
             word-wrap: break-word;
@@ -29,6 +30,35 @@ const MenuItem = ({ name, price, description, item, handleAddItem }) => (
         }
         .card-container {
             height: 100%;
+        }
+
+        .h-min {
+            min-height: 280px !important;
+        }
+
+        .w-max {
+            max-width: 210px;
+        }
+
+        .media {
+          font-size: 20px !important;
+        }
+
+        @media (max-width: 630px) {
+          .card-container {
+            width: 100% !important;
+            height: 100% !important;
+          }
+
+          .media {
+            font-size: 15px !important;
+          }
+
+            
+          .h-min {
+              min-height: 205px !important;
+          }
+
         }
         `}
     </style>
