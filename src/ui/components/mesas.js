@@ -325,7 +325,7 @@ function MesaApp() {
           margin-left: 10px;
         }
 
-        @media (max-width: 630px) {
+        @media (max-height: 935px) {
           .popup-content {
             width: 90%;
             height: 90%;

@@ -77,7 +77,7 @@ function Cardapio({ handleAddItem }) {
             display: none; /* Esconde a barra de rolagem */
           }
 
-          @media (max-width: 630px) {
+          @media (max-height: 935px) {
           .menu-item {
             display: inline-block;
             flex: 0 0 auto;
