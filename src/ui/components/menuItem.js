@@ -1,8 +1,9 @@
 import React from 'react';
 
-const MenuItem = ({ name, price, description, item, handleAddItem }) => (
+const MenuItem = ({ combo_name, name, price, description, item, handleAddItem }) => (
   <div className="d-flex flex-column rounded w-50 bg-custom justify-content-center mx-2 p-3 card-container h-min w-max">
     <div className="flex-grow-1 flex-row">
+      <h1 className="word-wrap media bold">{combo_name}</h1>
       <h3 className="word-wrap media">{name}</h3>
       <p className='align-items-end'>{description}</p>
       <span>R$ {price.toFixed(2)}</span>
@@ -22,7 +23,10 @@ const MenuItem = ({ name, price, description, item, handleAddItem }) => (
             background-color: #e9ecf0;
         }
 
-        
+        .bold {
+            font-weight: bold;
+        }
+
         .word-wrap {
             white-space: normal;
             word-wrap: break-word;

@@ -7,6 +7,7 @@ const MenuList = ({ items, handleAddItem }) => (
     {items.map(item => (
       <MenuItem
         key={item.id}
+        combo_name={item.combo_name}
         name={item.name}
         price={item.price}
         description={item.description}
