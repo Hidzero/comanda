@@ -6,10 +6,6 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    fullName: {
-        type:String,
-        required: true,
-    },
     email: {
         type: String,
         unique: true,
@@ -21,7 +17,6 @@ const userSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        required: true,
     },
     lastLogin: {
         type: Date,
@@ -33,4 +28,4 @@ const userSchema = new mongoose.Schema({
     }
 );
 
-export default mongoose.model("user", userSchema);
+export default mongoose.model("User", userSchema);

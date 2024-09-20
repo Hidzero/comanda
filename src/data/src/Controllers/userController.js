@@ -1,4 +1,4 @@
-import UserRepository from "../Repositories/userRepositorie.js";
+import userRepositories from "../Repositories/userRepositorie.js";
 import UserSchema from "../Models/Users.js";
 import bcrypt from "bcrypt";
 
@@ -9,7 +9,7 @@ export async function createUser (req, res) {
     try {
         const newUser = new UserSchema(req.body)
 
-        const savedUser = await UserRepository.createUser()
+        const savedUser = await newUser.save()
 
         res.status(201).json({
             statusCode: 201,
@@ -26,7 +26,7 @@ export async function createUser (req, res) {
 
 export async function getAllUsers(_, res) {
     try {
-        const users = await UserRepository.findAllUsers();
+        const users = await userRepositories.findAllUsers();
         res.status(200).json({
             statusCode: 200,
             message: "All users",
@@ -42,7 +42,7 @@ export async function getAllUsers(_, res) {
 
 export async function getUserById(req, res) {
     try {
-        const user = await UserRepository.findById(req.params.id);
+        const user = await userRepositories.findById(req.params.id);
         res.status(200).json({
             statusCode: 200,
             message: "User found",
@@ -58,7 +58,7 @@ export async function getUserById(req, res) {
 
 export async function getUserByAnything(req, res) {
     try {
-        const user = await UserRepository.findByAnything(req.body);
+        const user = await userRepositories.findByAnything(req.body);
         res.status(200).json({
             statusCode: 200,
             message: "User found",
@@ -74,7 +74,7 @@ export async function getUserByAnything(req, res) {
 
 export async function updateUserById(req, res) {
     try {
-        const user = await UserRepository.updateById(req.params.id, req.body);
+        const user = await userRepositories.updateById(req.params.id, req.body);
         res.status(200).json({
             statusCode: 200,
             message: "User updated",
@@ -90,7 +90,7 @@ export async function updateUserById(req, res) {
 
 export async function updateUserByAnything(req, res) {
     try {
-        const user = await UserRepository.updateByAnything(req.params, req.body);
+        const user = await userRepositories.updateByAnything(req.params, req.body);
         res.status(200).json({
             statusCode: 200,
             message: "User updated",
@@ -106,7 +106,7 @@ export async function updateUserByAnything(req, res) {
 
 export async function deleteUserById(req, res) {
     try {
-        const user = await UserRepository.deleteById(req.params.id);
+        const user = await userRepositories.deleteById(req.params.id);
         res.status(200).json({
             statusCode: 200,
             message: "User deleted",

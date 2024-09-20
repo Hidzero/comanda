@@ -5,8 +5,8 @@ import * as AuthController from "../Controllers/auth/authController.js"
 
 router.post("/login", AuthController.login)
 
-router.post("/", AuthController.verifyToken, UserController.createUser);
-router.get("/", AuthController.verifyToken, UserController.getAllUsers);
+router.post("/", UserController.createUser);
+router.get("/", UserController.getAllUsers);
 router.get("/:id", AuthController.verifyToken, UserController.getUserById);
 router.post("/find", AuthController.verifyToken, UserController.getUserByAnything);
 router.put("/:id", AuthController.verifyToken, UserController.updateUserById);

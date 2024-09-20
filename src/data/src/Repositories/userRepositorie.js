@@ -1,13 +1,14 @@
 import User from '../Models/Users.js'
 
-export default class UserRepository {
-    async createUser(userData) {
+class UserRepository {
+    async create(userData) {
         const user = new User(userData);
         await user.save();
         return user;
     }
 
     async findAllUsers() {
+        console.log(User)
         return await User.find();
     }
 
@@ -36,3 +37,6 @@ export default class UserRepository {
     }
 
 }
+
+const userRepositories = new UserRepository();
+export default userRepositories;

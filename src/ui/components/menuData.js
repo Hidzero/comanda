@@ -1,11 +1,11 @@
 // menuData.js
 export const combosData = [
-    { id: 1, name: 'Panceta/ Torresmo/ Carne Seca/ Linguiça Mineira/ Queijo/ Aipim', price: 150.00, description: 'Serve 6 pessoas' },
-    { id: 2, name: 'Panceta/ Torresmo/ Carne Seca/ Linguica Mineira/ Aipim', price: 130.00, description: 'Serve 5 pessoas' },
-    { id: 3, name: 'Panceta/ Torresmo/ Carne Seca/ Aipim', price: 120.00, description: 'Serve 4 pessoas' },
-    { id: 4, name: 'Panceta/ Carne Seca/ Aipim', price: 100.00, description: 'Serve 4 pessoas' },
-    { id: 5, name: 'Torresmo/ Carne Seca/ Aipim', price: 90.00, description: 'Serve 4 pessoas' },
-    { id: 6, name: 'Panceta/ Torresmo/ Aipim', price: 75.00, description: 'Serve 3 pessoas' },
+    { id: 1, combo_name:'Combo 1', name: 'Panceta/ Torresmo/ Carne Seca/ Linguiça Mineira/ Queijo/ Aipim', price: 150.00, description: 'Serve 6 pessoas' },
+    { id: 2, combo_name:'Combo 2', name: 'Panceta/ Torresmo/ Carne Seca/ Linguica Mineira/ Aipim', price: 130.00, description: 'Serve 5 pessoas' },
+    { id: 3, combo_name:'Combo 3', name: 'Panceta/ Torresmo/ Carne Seca/ Aipim', price: 120.00, description: 'Serve 4 pessoas' },
+    { id: 4, combo_name:'Combo 4', name: 'Panceta/ Carne Seca/ Aipim', price: 100.00, description: 'Serve 4 pessoas' },
+    { id: 5, combo_name:'Combo 5', name: 'Torresmo/ Carne Seca/ Aipim', price: 90.00, description: 'Serve 4 pessoas' },
+    { id: 6, combo_name:'Combo 6', name: 'Panceta/ Torresmo/ Aipim', price: 75.00, description: 'Serve 3 pessoas' },
   ];
   
 export const porcoesSeparadasData = [
@@ -31,7 +31,8 @@ export const meiaPorcao = [
 ];
 
 export const churrascoNoPalito = [
-  { id: 1, name: 'Misto ou Carne', price: 10.00, description: 'Unidade' },
+  { id: 1, name: 'Misto', price: 10.00, description: 'Unidade' },
+  { id: 1, name: 'Carne', price: 10.00, description: 'Unidade' },
 ];
 
 export const naoAlcoolicos = [

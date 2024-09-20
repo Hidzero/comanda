@@ -1,12 +1,13 @@
 // MenuList.js
 import React from 'react';
-import MenuItem from './menuItem';
+import MenuItem from './menuItem.js';
 
 const MenuList = ({ items, handleAddItem }) => (
   <div className="menu-bar mb-3 d-flex">
     {items.map(item => (
       <MenuItem
         key={item.id}
+        combo_name={item.combo_name}
         name={item.name}
         price={item.price}
         description={item.description}

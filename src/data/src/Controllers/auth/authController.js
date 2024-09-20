@@ -1,6 +1,8 @@
 import UserSchema from "../../Models/Users.js"
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
+import dotenv from 'dotenv';
+dotenv.config();
 
 export async function login(req, res) {
     try {
