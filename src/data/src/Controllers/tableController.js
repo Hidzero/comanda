@@ -26,6 +26,19 @@ export async function getAllTables(req, res) {
     }
 }
 
+export async function getTableById(req, res) {
+    try {
+        const table = await tableRepository.findById(req.params.id);
+        res.status(200).json({
+            statusCode: 200,
+            message: "Mesa encontrada",
+            data: table
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
+
 export async function updateTable(req, res) {
     try {
         const updatedTable = await tableRepository.updateById(req.params.id, req.body);

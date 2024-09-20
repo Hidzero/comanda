@@ -9,11 +9,13 @@ const orderSchema = new mongoose.Schema({
       price: { type: Number, required: true },
       category: { type: String, required: true },  // Para diferenciar alimentos e bebidas
       observation: { type: String, default: '' },
+      status: { type: String, enum: ['pendente', 'entregue'], default: 'pendente' }, // Status do item (novo campo)
       createdAt: { type: Date, default: Date.now }  // Timestamp de quando o pedido foi feito
     }
   ],
-  status: { type: String, default: 'emPreparo' },  // Status inicial é 'emPreparo'
+  status: { type: String, enum: ['emPreparo', 'pronto'], default: 'emPreparo', required: true },  // Status geral do pedido
   createdAt: { type: Date, default: Date.now },  // Data e hora do pedido
 }, { timestamps: true });
+
 
 export default mongoose.model('Order', orderSchema);

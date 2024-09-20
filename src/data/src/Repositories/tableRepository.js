@@ -7,6 +7,10 @@ class TableRepository {
         return table;
     }
 
+    async updateStatusByTableNumber(tableNumber, status) {
+        return await Table.findOneAndUpdate({ tableNumber: tableNumber }, { status }, { new: true });
+      }
+
     async findAllTables() {
         return await Table.find();
     }

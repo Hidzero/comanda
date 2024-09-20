@@ -7,6 +7,10 @@ class OrderRepository {
         return order;
     }
 
+    async findByTableNumberAndStatus(tableNumber, status) {
+        return await Order.findOne({ tableNumber, status });
+      }      
+
     async generateOrderNumber(){
         const lastOrder = await Order.findOne().sort({ orderNumber: -1 }); 
         if (!lastOrder)
@@ -15,8 +19,16 @@ class OrderRepository {
             return lastOrder ? lastOrder.orderNumber + 1 : 1;
     };
 
+    async findAll() {
+        return await Order.find();
+    }
+
     async findByTableId(tableId) {
-        return await Order.find({ tableId });
+        return await Order.find({ tableNumber: tableId  });
+    }
+
+    async findById(id) {
+        return await Order.findById(id);
     }
 
     async updateById(id, orderData) {

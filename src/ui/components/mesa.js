@@ -1,8 +1,8 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import React, { useState } from 'react';
-import Header from './header.js';
+import React, { useState, useEffect } from 'react';
 import Cardapio from './cardapio.js';
 import axios from 'axios';
+import Header from './header.js';
 
 export default function Mesa() {
   const { id } = useParams(); // Número da mesa
@@ -13,6 +13,29 @@ export default function Mesa() {
     items: []
   });
 
+  useEffect(() => {
+    getOrdersByTableName(id); // Buscar os pedidos da mesa ao carregar o componente
+  }, [id]);
+
+  // Função para buscar os pedidos de uma mesa específica
+  const getOrdersByTableName = async (tableName) => {
+    try {
+      const response = await axios.get(`http://${process.env.REACT_APP_IP}:${process.env.REACT_APP_PORT}/order/${tableName}`);
+      const data = response.data.data[0];
+      console.log(data);
+
+
+      console.log('Pedidos:', response);
+
+      setOrders({
+        ...data,
+        items: Array.isArray(data.items) ? data.items : [] // Garante que "items" seja um array
+      });
+    } catch (error) {
+      console.error('Erro ao buscar pedidos:', error);
+    }
+  };
+
   // Função para adicionar um item ao pedido
   const handleAddItem = async (item) => {
     setOrders((prevOrders) => ({
@@ -22,12 +45,10 @@ export default function Mesa() {
     }));
 
     try {
-      
       await axios.post(`http://${process.env.REACT_APP_IP}:${process.env.REACT_APP_PORT}/order`, {
         tableNumber: id, // Número da mesa
         items: [{ ...item, observation: '', createdAt: new Date(), category: item.category }]  // Categoria e observações
       });
-
     } catch (error) {
       console.error('Erro ao enviar o pedido:', error);
     }
@@ -77,43 +98,58 @@ export default function Mesa() {
     navigate('/mesas'); // Redireciona para a tela das mesas
   };
 
-// Função para enviar os itens de comida para a cozinha
-const sendToKitchen = async () => {
-  try {
-    const foodItems = orders.items.filter(item => item.category !== 'bebida'); // Filtra apenas os alimentos
-
-    // Verifica se há itens de comida a serem enviados
-    if (foodItems.length === 0) {
-      alert("Não há itens de comida para enviar.");
-      return;
+  // Função para marcar um item como entregue
+  const handleMarkAsDelivered = async (orderId, itemId) => {
+    try {
+      await axios.put(`http://${process.env.REACT_APP_IP}:${process.env.REACT_APP_PORT}/order/${orderId}/items/${itemId}/status`, {
+        status: 'entregue'
+      });
+      alert("Item marcado como entregue");
+      // Atualiza o estado ou recarrega os pedidos
+      getOrdersByTableName(id);
+    } catch (error) {
+      console.error("Erro ao marcar o item como entregue:", error);
     }
+  };
 
-    // Prepara o pedido a ser enviado
-    const orderData = {
-      tableNumber: id,
-      items: foodItems.map(item => ({
-        name: item.name,
-        price: item.price,
-        category: item.category,
-        observation: item.observation,
-        createdAt: item.createdAt
-      }))
-    };
+  // Função para enviar os itens de comida para a cozinha
+  const sendToKitchen = async () => {
+    try {
+      const foodItems = orders.items.filter(item => item.category !== 'bebida'); // Filtra apenas os alimentos
 
-    // Faz a requisição para enviar o pedido
-    const response = await axios.post(`http://${process.env.REACT_APP_IP}:${process.env.REACT_APP_PORT}/order`, orderData);
+      // Verifica se há itens de comida a serem enviados
+      if (foodItems.length === 0) {
+        alert("Não há itens de comida para enviar.");
+        return;
+      }
 
-    if (response.status === 201) {
-      alert("Itens enviados para a cozinha com sucesso!");
-    } else {
+      // Prepara o pedido a ser enviado
+      const orderData = {
+        tableNumber: id,
+        items: foodItems.map(item => ({
+          name: item.name,
+          price: item.price,
+          category: item.category,
+          observation: item.observation,
+          createdAt: item.createdAt
+        }))
+      };
+
+      // Faz a requisição para criar ou atualizar o pedido
+      const response = await axios.post(`http://${process.env.REACT_APP_IP}:${process.env.REACT_APP_PORT}/order`, orderData);
+
+      if (response.status === 201) {
+        alert("Itens enviados para a cozinha com sucesso!");
+      } else if (response.status === 200) {
+        alert("Pedido atualizado com sucesso!");
+      } else {
+        alert("Erro ao enviar os itens para a cozinha.");
+      }
+    } catch (error) {
+      console.error('Erro ao enviar para a cozinha:', error);
       alert("Erro ao enviar os itens para a cozinha.");
     }
-  } catch (error) {
-    console.error('Erro ao enviar para a cozinha:', error);
-    alert("Erro ao enviar os itens para a cozinha.");
-  }
-};
-
+  };
 
   return (
     <div>
@@ -121,7 +157,7 @@ const sendToKitchen = async () => {
       <div className="container">
         <div>
           <h1>Mesa {id}</h1>
-          <p>Total: R${orders.total.toFixed(2)}</p>
+          <p>Total: R${orders.total ? orders.total.toFixed(2) : '0.00'}</p>
           <h5>Itens do Cardápio:</h5>
           <Cardapio handleAddItem={handleAddItem} />
 
@@ -130,7 +166,7 @@ const sendToKitchen = async () => {
             {orders.items.map((item, index) => (
               <li key={index} className="order-item mb-3">
                 <div className="d-flex justify-content-between align-items-center">
-                  <span>{item.name} - R${item.price.toFixed(2)}</span>
+                  <span>{item.name} - R${item.price.toFixed(2)} - Status: {item.status}</span>
                   
                   {/* Botão para excluir o item */}
                   <button
@@ -154,7 +190,7 @@ const sendToKitchen = async () => {
 
           {/* Botão para enviar os alimentos para a cozinha */}
           <button onClick={sendToKitchen} className="btn btn-primary w-100 mt-3">
-            Enviar para a Cozinha
+            Enviar pedido
           </button>
 
           {/* Botão para fechar a comanda */}
