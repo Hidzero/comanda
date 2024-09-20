@@ -31,10 +31,19 @@ const MenuItem = ({ name, combo_name, price, description, item, handleAddItem })
           background-color: #ff3030;
           color: white;
         }
+        .bold {
+            font-weight: bold;
+        }
 
+        .word-wrap {
+            white-space: normal;
+            word-wrap: break-word;
+            word-break: break-word;
+        }
         .btn-red:hover {
           background-color: #ff0000;
           color: white;
+          
         }
 
         .btn-custom{
