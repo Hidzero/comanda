@@ -17,8 +17,8 @@ const orderSchema = new mongoose.Schema({
   dividirConta: { type: Number, default: 1 },  // Número de pessoas para dividir a conta
   formaPagamento: [
     {
-      tipo: { type: String, enum: ['dinheiro', 'crédito','debito', 'pix', 'trasnferencia (mumbuca)'], required: true },
-      valor: { type: Number, required: true }
+      tipo: { type: String, enum: ['dinheiro', 'crédito','debito', 'pix', 'trasnferencia'] },
+      valor: { type: Number }
     }
   ],  // Forma de pagamento
   createdAt: { type: Date, default: Date.now },  // Data e hora do pedido

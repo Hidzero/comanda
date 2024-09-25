@@ -13,7 +13,13 @@ export default function Mesa() {
     items: []
   });
 
-  // Função para buscar o pedido por mesa
+  const [showModal, setShowModal] = useState(false);
+  const [isDividing, setIsDividing] = useState(false);
+  const [numPeople, setNumPeople] = useState(1);
+  const [paymentMethods, setPaymentMethods] = useState([]);
+  const totalPerPerson = orders.total / numPeople;
+
+
   const getOrdersByTableName = async (tableName) => {
     try {
       const response = await axios.get(`http://${process.env.REACT_APP_IP}:${process.env.REACT_APP_PORT}/order/${tableName}`);
@@ -23,8 +29,12 @@ export default function Mesa() {
       const activeOrder = datas.data.find(data => data.status === 'emPreparo' || data.status === 'aguardandoPagamento');
 
       if (activeOrder) {
+        // Recalcula o total baseado nos itens
+        const total = activeOrder.items.reduce((acc, item) => acc + (item.price || 0), 0);
+
         setOrders({
           ...activeOrder,
+          total, // Define o total calculado
           items: Array.isArray(activeOrder.items) ? activeOrder.items : []
         });
       } else {
@@ -35,6 +45,7 @@ export default function Mesa() {
       console.error('Erro ao buscar pedidos:', error);
     }
   };
+
 
   useEffect(() => {
     getOrdersByTableName(id);
@@ -89,7 +100,40 @@ export default function Mesa() {
     });
   };
 
+  const handleConfirmCloseOrder = () => {
+    setOrders((prevOrders) => ({
+      ...prevOrders,
+      status: 'aguardandoPagamento',
+    }));
+    setShowModal(false); // Fecha o modal após confirmar
+  };
+
+  const handleClose = () => {
+    setShowModal(false); // Fecha o modal
+  };
+
+  const handleCheckboxChange = (e) => {
+    setIsDividing(e.target.checked); // Atualiza o estado baseado no checkbox
+  };
+
+  // Função para lidar com mudança na quantidade de pessoas
+  const handleNumPeopleChange = (e) => {
+    const num = parseInt(e.target.value) || 1;
+    setNumPeople(num);
+
+    // Atualiza o array de métodos de pagamento para o número de pessoas
+    setPaymentMethods(new Array(num).fill("dinheiro"));
+  };
+
+  // Função para lidar com a mudança de forma de pagamento para cada pessoa
+  const handlePaymentMethodChange = (index, method) => {
+    const newPaymentMethods = [...paymentMethods];
+    newPaymentMethods[index] = method;
+    setPaymentMethods(newPaymentMethods);
+  };
+
   const closeOrder = () => {
+    setShowModal(true); // Abre o modal
     setOrders((prevOrders) => ({
       ...prevOrders,
       status: 'aguardandoPagamento',
@@ -100,29 +144,39 @@ export default function Mesa() {
     try {
       const orderId = orders._id;
       const tableNumber = orders.tableNumber;
-
+      const dividirConta = isDividing ? numPeople : 1; // Verifica se está dividindo a conta
+  
+      // Cria um array com os métodos de pagamento e o valor por pessoa
+      const formasPagamento = paymentMethods.map((tipo) => ({
+        tipo: tipo,
+        valor: totalPerPerson
+      }));
+  
       await axios.put(`http://${process.env.REACT_APP_IP}:${process.env.REACT_APP_PORT}/order/${orderId}`, {
+        dividirConta: dividirConta,
+        formaPagamento: formasPagamento,
         status: 'pago'
       });
-
+  
       await axios.put(`http://${process.env.REACT_APP_IP}:${process.env.REACT_APP_PORT}/table/${tableNumber}`, {
         status: 'livre'
       });
-
+  
       setOrders({
         status: 'pago',
         total: 0,
         items: [],
       });
-
+      handleConfirmCloseOrder();
       alert('Pedido marcado como pago!');
       navigate('/mesas');
-
+  
     } catch (error) {
       console.error('Erro ao marcar o pedido como pago:', error);
       alert('Erro ao marcar o pedido como pago.');
     }
   };
+  
 
   const sendToKitchen = async () => {
     try {
@@ -196,6 +250,58 @@ export default function Mesa() {
           <h5>Itens do Cardápio:</h5>
           <Cardapio handleAddItem={handleAddItem} />
 
+          {/* Modal Bootstrap */}
+          <div className={`modal fade ${showModal ? 'show d-block' : ''}`} tabIndex="-1" style={{ display: showModal ? 'block' : 'none', backgroundColor: 'rgba(0,0,0,0.5)' }}>
+            <div className="modal-dialog">
+              <div className="modal-content">
+                <div className="modal-header">
+                  <h5 className="modal-title">Fechar Comanda</h5>
+                  <button type="button" className="btn-close" onClick={handleClose}></button>
+                </div>
+                <div className="modal-body">
+                  <label>Deseja dividir a conta?</label>
+                  <input type="checkbox" className='m-3' onChange={handleCheckboxChange} />
+                </div>
+
+                {/* Exibe as opções extras somente se o checkbox estiver marcado */}
+                {isDividing && (
+                  <>
+                    <div className="modal-body">
+                      <label>Quantas pessoas?</label>
+                      <input type="number" className='form-control' value={numPeople} onChange={handleNumPeopleChange} />
+                    </div>
+                    <div className="modal-body">
+                      <h5>Valor por pessoa: R${totalPerPerson.toFixed(2)}</h5>
+                    </div>
+
+                    {/* Seletor de forma de pagamento para cada pessoa */}
+                    {Array.from({ length: numPeople }).map((_, index) => (
+                      <div key={index} className="modal-body">
+                        <label>Forma de pagamento para pessoa {index + 1}:</label>
+                        <select
+                          className="form-select"
+                          value={paymentMethods[index]}
+                          onChange={(e) => handlePaymentMethodChange(index, e.target.value)}
+                        >
+                          <option value="dinheiro">Dinheiro</option>
+                          <option value="credito">Crédito</option>
+                          <option value="debito">Débito</option>
+                          <option value="pix">Pix</option>
+                          <option value="transferencia">Transferência (mumbuca)</option>
+                        </select>
+                      </div>
+                    ))}
+                  </>
+                )}
+
+                <div className="modal-footer">
+                  <button type="button" className="btn btn-secondary" onClick={handleClose}>Cancelar</button>
+                  <button type="button" className="btn btn-primary" onClick={markAsPaid}>Confirmar</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <h5>Itens no Pedido:</h5>
           {orders.items && orders.items.length > 0 ? (
             <ul>
@@ -204,7 +310,7 @@ export default function Mesa() {
                   <div className="d-flex justify-content-between align-items-center">
                     <span>
                       {item.name} - R${item.price ? item.price.toFixed(2) : '0.00'}
-                      {!(item.category === 'nao alcoolico' || item.category === 'drinks prontos' || item.category === 'cerveja 600ml' || item.category === 'long neck') && (
+                      {!(item.category === 'nao alcoolico' || item.category === 'drinks prontos' || item.category === 'cerveja 600ml' || item.category === 'long neck' || item.category === 'outros') && (
                         <> - Status: {item.status}</>
                       )}
                     </span>
@@ -251,9 +357,6 @@ export default function Mesa() {
             <>
               <button onClick={updateKitchen} className="btn btn-primary m-3">
                 Atualizar pedido
-              </button>
-              <button onClick={markAsPaid} className="btn btn-primary m-3">
-                Marcar como Pago
               </button>
             </>
           )}

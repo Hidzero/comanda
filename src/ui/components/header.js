@@ -11,7 +11,7 @@ export default function Header() {
             <img src={logo} alt="Logo do restaurante" width="80" height="80" />
             <div className="navbar-brand d-flex flex-row justify-content-center align-items-center">
                 <Link className="m-3 navbar-brand" as={Link} to="/mesas">Mesas</Link>
-                <Link className="navbar-brand" as={Link} to="/caixa">Caixa</Link>
+                <Link className="navbar-brand hidden" as={Link} to="/caixa">Caixa</Link>
                 <Link className="navbar-brand" as={Link} to="/cozinha">Cozinha</Link>
                 {/* <Link className="navbar-brand" as={Link} to="/logout">Logout</Link> */}
             </div>
@@ -21,6 +21,14 @@ export default function Header() {
             <div className="collapse navbar-collapse" id="navbarNavDarkDropdown">
             </div>
         </div>
+        <style jsx="true">{`
+            @media (max-width: 1200px) {
+            .hidden {
+                display: none;
+            }
+        }
+        `}
+        </style>
         </nav>
     )
 }

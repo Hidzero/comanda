@@ -12,7 +12,8 @@ function Cardapio({ handleAddItem }) {
     naoAlcoolicos: [],
     drinksProntos: [],
     cerveja600ml: [],
-    longNeck: []
+    longNeck: [],
+    outros: []
   });
   const [loading, setLoading] = useState(true);
 
@@ -31,7 +32,8 @@ function Cardapio({ handleAddItem }) {
         naoAlcoolicos: data.filter(item => item.category === 'nao alcoolico'),
         drinksProntos: data.filter(item => item.category === 'drinks prontos'),
         cerveja600ml: data.filter(item => item.category === 'cerveja 600ml'),
-        longNeck: data.filter(item => item.category === 'long neck')
+        longNeck: data.filter(item => item.category === 'long neck'),
+        outros: data.filter(item => item.category === 'outros')
       });
 
       setLoading(false);  // Desativa o loader
@@ -69,6 +71,8 @@ function Cardapio({ handleAddItem }) {
         return <MenuList items={menuData.cerveja600ml} handleAddItem={handleAddItem} />;
       case 'longNeck':
         return <MenuList items={menuData.longNeck} handleAddItem={handleAddItem} />;
+      case 'outros':
+        return <MenuList items={menuData.outros} handleAddItem={handleAddItem} />;
       default:
         return null;
     }
@@ -101,6 +105,9 @@ function Cardapio({ handleAddItem }) {
           </li>
           <li className={`menu-item ${activeCategory === 'longNeck' ? 'active' : ''}`}>
             <button onClick={() => setActiveCategory('longNeck')}>Long Neck</button>
+          </li>
+          <li className={`menu-item ${activeCategory === 'outros' ? 'active' : ''}`}>
+            <button onClick={() => setActiveCategory('outros')}>Outros</button>
           </li>
         </ul>
       </nav>

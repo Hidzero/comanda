@@ -11,5 +11,6 @@ router.put('/update/:orderId', OrderController.updateOrder);
 router.put('/:id', OrderController.updateOrderStatus);
 router.put('/entregue/:orderId/:itemId', OrderController.markAsDelivered);
 router.put('/delete/:id', OrderController.removeItemFromOrder);
+router.put('/delete/:id', OrderController.removeItemFromOrder);
 
 export default router;

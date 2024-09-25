@@ -101,7 +101,8 @@ const handleMarkAsDelivered = async (orderId, itemId) => {
                   item.category !== 'nao alcoolico' &&
                   item.category !== 'cerveja 600ml' &&
                   item.category !== 'long neck' &&
-                  item.category !== 'drinks prontos'
+                  item.category !== 'drinks prontos' &&
+                  item.category !== 'outros'
                 )
                 .map((item, index) => (
                   <div key={index} className="order-card d-flex flex-column">
@@ -115,7 +116,7 @@ const handleMarkAsDelivered = async (orderId, itemId) => {
                     <p><strong>Tempo do pedido:</strong> {Math.round((new Date() - new Date(item.createdAt)) / 60000)} minutos atrás</p>
                     <div className="flex-grow-1"></div>
                     <button
-                      className="btn btn-success d-flex justify-content-center"
+                      className="btn btn-success d-flex justify-content-center hidden"
                       onClick={() => handleMarkAsDelivered(order._id, item._id)}
                     >
                       Marcar como Entregue
@@ -183,6 +184,12 @@ const handleMarkAsDelivered = async (orderId, itemId) => {
 
         .btn-success:hover {
           background-color: darkgreen;
+        }
+
+        @media (max-width: 1200px) {
+          .hidden {
+            display: none !important;
+          } 
         }
 
       `}</style>
