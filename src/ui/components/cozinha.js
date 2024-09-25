@@ -7,7 +7,6 @@ export default function TelaCozinha() {
   const [orders, setOrders] = useState([]);
   const navigate = useNavigate(); // Navegação
 
-
   // Função para buscar todos os pedidos com status "em preparo"
   const getOrders = async () => {
     try {
@@ -18,69 +17,71 @@ export default function TelaCozinha() {
     }
   };
 
-// Função para marcar um item como entregue e atualizar o estado localmente
-const handleMarkAsDelivered = async (orderId, itemId) => {
-  try {
-    // Atualiza o status no banco de dados
-    await axios.put(`http://${process.env.REACT_APP_IP}:${process.env.REACT_APP_PORT}/order/entregue/${orderId}/${itemId}`, {
-      status: 'entregue'
-    });
-
-    // Atualiza o estado localmente sem precisar fazer uma nova requisição
-    setOrders((prevOrders) => {
-      return prevOrders.map(order => {
-        if (order._id.toString() === orderId.toString()) {
-          return {
-            ...order,
-            items: order.items.map(item =>
-              item._id.toString() === itemId.toString() 
-                ? { ...item, status: 'entregue' } // Atualiza apenas o status
-                : item
-            )
-          };
-        }
-        return order; // Retorna o pedido sem alterações
+  // Função para marcar um item como entregue e atualizar o estado localmente
+  const handleMarkAsDelivered = async (orderId, itemId) => {
+    try {
+      // Atualiza o status no banco de dados
+      await axios.put(`http://${process.env.REACT_APP_IP}:${process.env.REACT_APP_PORT}/order/entregue/${orderId}/${itemId}`, {
+        status: 'entregue'
       });
-    });
 
-    // Navega para a página de mesas após atualizar o pedido
-    navigate('/mesas');
+      // Atualiza o estado localmente sem precisar fazer uma nova requisição
+      setOrders((prevOrders) => {
+        return prevOrders.map(order => {
+          if (order._id.toString() === orderId.toString()) {
+            return {
+              ...order,
+              items: order.items.map(item =>
+                item._id.toString() === itemId.toString() 
+                  ? { ...item, status: 'entregue' } // Atualiza apenas o status
+                  : item
+              )
+            };
+          }
+          return order; // Retorna o pedido sem alterações
+        });
+      });
 
-  } catch (error) {
-    console.error('Erro ao marcar item como entregue:', error);
-  }
-};
+      // Navega para a página de mesas após atualizar o pedido
+      navigate('/mesas');
 
+    } catch (error) {
+      console.error('Erro ao marcar item como entregue:', error);
+    }
+  };
 
+  // Atualiza os pedidos inicialmente e a cada 10 segundos
   useEffect(() => {
+    // Atualiza os pedidos ao montar o componente
     getOrders();
+
+    // Define o intervalo para atualizar os pedidos a cada 10 segundos
+    const interval = setInterval(() => {
+      getOrders();
+    }, 10000);
+
+    // Limpa o intervalo quando o componente for desmontado
+    return () => clearInterval(interval);
   }, []);
 
   const hasPendingItems = Array.isArray(orders) && orders.some(order =>
     Array.isArray(order.items) && order.items.some(item => item.status === 'emPreparo')
   );
 
-
   const comboName = (name) => {
     if (name === 'Panceta/ Torresmo/ Carne Seca/ Linguiça Mineira/ Queijo/ Aipim') {
       return 'Combo 1'
-    }
-    else if (name === 'Panceta/ Torresmo/ Carne Seca/ Linguica Mineira/ Aipim') {
+    } else if (name === 'Panceta/ Torresmo/ Carne Seca/ Linguica Mineira/ Aipim') {
       return 'Combo 2'
-    }
-    else if (name === 'Panceta/ Torresmo/ Carne Seca/ Aipim') {
+    } else if (name === 'Panceta/ Torresmo/ Carne Seca/ Aipim') {
       return 'Combo 3'
-    }
-    else if (name === 'Panceta/ Carne Seca/ Aipim') {
+    } else if (name === 'Panceta/ Carne Seca/ Aipim') {
       return 'Combo 4'
-    }
-    else if (name === 'Torresmo/ Carne Seca/ Aipim') {
+    } else if (name === 'Torresmo/ Carne Seca/ Aipim') {
       return 'Combo 5'
-    }
-    else if (name === 'Panceta/ Torresmo/ Aipim') {
+    } else if (name === 'Panceta/ Torresmo/ Aipim') {
       return 'Combo 6'
-    }
-    else {
+    } else {
       return ''
     }
   };
@@ -124,8 +125,6 @@ const handleMarkAsDelivered = async (orderId, itemId) => {
                   </div>
                 ))
             )}
-
-
           </div>
         )}
       </div>
