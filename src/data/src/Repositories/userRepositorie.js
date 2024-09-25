@@ -8,7 +8,6 @@ class UserRepository {
     }
 
     async findAllUsers() {
-        console.log(User)
         return await User.find();
     }
 

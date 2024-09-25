@@ -66,8 +66,6 @@ class OrderRepository {
     }
 
     async updateById(id, orderData) {
-        console.log(orderData);
-        console.log(id);
         return await Order.findByIdAndUpdate(id, orderData, { new: true });
     }
 

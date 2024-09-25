@@ -128,7 +128,6 @@ export async function updateOrder(req, res) {
 
 export async function updateOrderStatus(req, res) {
   try {
-    console.log(req.body);
     const updatedOrder = await OrderRepository.updateById(req.params.id, req.body);
 
     res.status(200).json({

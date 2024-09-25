@@ -14,7 +14,7 @@ export default function Mesa() {
   });
 
   const [showModal, setShowModal] = useState(false);
-  const [isDividing, setIsDividing] = useState(false);
+  const [isDividing, setIsDividing] = useState(true);
   const [numPeople, setNumPeople] = useState(1);
   const [paymentMethods, setPaymentMethods] = useState([]);
   const totalPerPerson = orders.total / numPeople;
@@ -63,7 +63,7 @@ export default function Mesa() {
     const itemToRemove = orders.items[index];
 
     if (itemToRemove.status === 'entregue') {
-      alert("Este item já foi entregue e não pode ser removido.");
+      // alert("Este item já foi entregue e não pode ser removido.");
       return;
     }
 
@@ -81,11 +81,11 @@ export default function Mesa() {
         total: prevOrders.total - itemToRemove.price
       }));
 
-      alert("Item removido com sucesso!");
+      // alert("Item removido com sucesso!");
 
     } catch (error) {
       console.error('Erro ao remover item:', error);
-      alert('Erro ao remover item.');
+      // alert('Erro ao remover item.');
     }
   };
 
@@ -168,12 +168,12 @@ export default function Mesa() {
         items: [],
       });
       handleConfirmCloseOrder();
-      alert('Pedido marcado como pago!');
+      // alert('Pedido marcado como pago!');
       navigate('/mesas');
   
     } catch (error) {
       console.error('Erro ao marcar o pedido como pago:', error);
-      alert('Erro ao marcar o pedido como pago.');
+      // alert('Erro ao marcar o pedido como pago.');
     }
   };
   
@@ -197,9 +197,9 @@ export default function Mesa() {
       const response = await axios.post(`http://${process.env.REACT_APP_IP}:${process.env.REACT_APP_PORT}/order`, orderData);
 
       if (response.status === 201) {
-        alert("Itens enviados para a cozinha com sucesso!");
+        // alert("Itens enviados para a cozinha com sucesso!");
       } else if (response.status === 200) {
-        alert("Pedido atualizado com sucesso!");
+        // alert("Pedido atualizado com sucesso!");
       }
 
       setOrders((prevOrders) => ({
@@ -213,7 +213,7 @@ export default function Mesa() {
 
     } catch (error) {
       console.error('Erro ao enviar para a cozinha ou marcar mesa como ocupada:', error);
-      alert("Erro ao enviar os itens para a cozinha ou marcar a mesa como ocupada.");
+      // alert("Erro ao enviar os itens para a cozinha ou marcar a mesa como ocupada.");
     }
   };
 
@@ -226,9 +226,9 @@ export default function Mesa() {
     const response = await axios.put(`http://${process.env.REACT_APP_IP}:${process.env.REACT_APP_PORT}/order/update/${orders._id}`, orderData.items);
 
     if (response.status === 201) {
-      alert("Itens enviados para a cozinha com sucesso!");
+      // alert("Itens enviados para a cozinha com sucesso!");
     } else if (response.status === 200) {
-      alert("Pedido atualizado com sucesso!");
+      // alert("Pedido atualizado com sucesso!");
     }
 
     setOrders((prevOrders) => ({
@@ -258,16 +258,12 @@ export default function Mesa() {
                   <h5 className="modal-title">Fechar Comanda</h5>
                   <button type="button" className="btn-close" onClick={handleClose}></button>
                 </div>
-                <div className="modal-body">
-                  <label>Deseja dividir a conta?</label>
-                  <input type="checkbox" className='m-3' onChange={handleCheckboxChange} />
-                </div>
 
                 {/* Exibe as opções extras somente se o checkbox estiver marcado */}
                 {isDividing && (
                   <>
                     <div className="modal-body">
-                      <label>Quantas pessoas?</label>
+                      <label>Deseja dividir a conta com quantas pessoas?</label>
                       <input type="number" className='form-control' value={numPeople} onChange={handleNumPeopleChange} />
                     </div>
                     <div className="modal-body">
