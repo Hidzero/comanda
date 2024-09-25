@@ -53,7 +53,7 @@ export async function getOrdersByFilter(req, res) {
     }
     if (endDate) {
       if (!dateFilter.createdAt) dateFilter.createdAt = {};
-      dateFilter.createdAt.$lte = new Date(new Date(endDate).setHours(23, 59, 59, 999)); // Filtra até o fim da data final
+      dateFilter.createdAt.$lte = new Date(new Date(endDate).setHours(23, 59, 59, 999)); // Filtra até o final do dia
     }
 
     // Buscar os pedidos no banco com base no filtro de data e paginação
@@ -115,7 +115,6 @@ export async function updateOrder(req, res) {
       items: req.body
     }
     const updatedOrder = await OrderRepository.updateById(req.params.orderId, data);
-    console.log(updatedOrder);
 
     res.status(200).json({
       statusCode: 200,
@@ -177,7 +176,6 @@ export async function removeItemFromOrder(req, res) {
     const { items } = req.body;
 
     const updatedOrder = await orderRepository.updateById(orderId, { items }, { new: true });
-    console.log(updatedOrder);
 
     if (!updatedOrder) {
       return res.status(404).json({ message: 'Pedido não encontrado' });

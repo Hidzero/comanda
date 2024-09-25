@@ -104,7 +104,7 @@ const handleMarkAsDelivered = async (orderId, itemId) => {
                   item.category !== 'drinks prontos'
                 )
                 .map((item, index) => (
-                  <div key={index} className="order-card">
+                  <div key={index} className="order-card d-flex flex-column">
                     <div className='d-flex flex-column align-items-center'>
                       <h3>Mesa {order.tableNumber}</h3>
                       <hr />
@@ -113,6 +113,7 @@ const handleMarkAsDelivered = async (orderId, itemId) => {
                     <p><strong>Pedido:</strong> {item.name}</p>
                     <p><strong>Observações:</strong> {item.observation || 'Nenhuma'}</p>
                     <p><strong>Tempo do pedido:</strong> {Math.round((new Date() - new Date(item.createdAt)) / 60000)} minutos atrás</p>
+                    <div className="flex-grow-1"></div>
                     <button
                       className="btn btn-success d-flex justify-content-center"
                       onClick={() => handleMarkAsDelivered(order._id, item._id)}

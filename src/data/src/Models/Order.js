@@ -14,6 +14,13 @@ const orderSchema = new mongoose.Schema({
     }
   ],
   status: { type: String, enum: ['emPreparo', 'pronto'], default: 'emPreparo', required: true },  // Status geral do pedido
+  dividirConta: { type: Number, default: 1 },  // Número de pessoas para dividir a conta
+  formaPagamento: [
+    {
+      tipo: { type: String, enum: ['dinheiro', 'crédito','debito', 'pix', 'trasnferencia (mumbuca)'], required: true },
+      valor: { type: Number, required: true }
+    }
+  ],  // Forma de pagamento
   createdAt: { type: Date, default: Date.now },  // Data e hora do pedido
 }, { timestamps: true });
 

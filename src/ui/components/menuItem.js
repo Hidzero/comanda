@@ -48,6 +48,7 @@ const MenuItem = ({ name, combo_name, price, description, item, handleAddItem })
 
         .btn-custom{
           background-color: #f5a623;
+          margin-bottom: 50px;
         }
 
         .btn-custom:hover {
@@ -65,9 +66,10 @@ const MenuItem = ({ name, combo_name, price, description, item, handleAddItem })
         }
 
         .card-container {
-          width: 100%;
+          min-width: 250px;
+          max-width: 250px;
           height: 100%;
-          min-height: 330px;
+          min-height: 360px;
           display: flex;
           flex-direction: column;
         }

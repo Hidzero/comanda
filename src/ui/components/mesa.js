@@ -13,13 +13,14 @@ export default function Mesa() {
     items: []
   });
 
+  // Função para buscar o pedido por mesa
   const getOrdersByTableName = async (tableName) => {
     try {
       const response = await axios.get(`http://${process.env.REACT_APP_IP}:${process.env.REACT_APP_PORT}/order/${tableName}`);
       const datas = response.data;
 
-      // Verifica se há pedidos com o status 'emPreparo'
-      const activeOrder = datas.data.find(data => data.status === 'emPreparo');
+      // Verifica se há pedidos com status 'emPreparo' ou 'aguardandoPagamento'
+      const activeOrder = datas.data.find(data => data.status === 'emPreparo' || data.status === 'aguardandoPagamento');
 
       if (activeOrder) {
         setOrders({
@@ -27,7 +28,8 @@ export default function Mesa() {
           items: Array.isArray(activeOrder.items) ? activeOrder.items : []
         });
       } else {
-        alert("Nenhum pedido em preparo para essa mesa.");
+        // Caso não haja pedido no banco, reseta os pedidos
+        setOrders({ status: 'emAtendimento', total: 0, items: [] });
       }
     } catch (error) {
       console.error('Erro ao buscar pedidos:', error);
@@ -38,19 +40,17 @@ export default function Mesa() {
     getOrdersByTableName(id);
   }, [id]);
 
-
   const handleAddItem = (item) => {
     setOrders((prevOrders) => ({
       ...prevOrders,
       total: prevOrders.total + (item.price || '0.00'),
-      items: [...prevOrders.items, { ...item, observation: '', createdAt: new Date() }] // Adiciona o timestamp
+      items: [...prevOrders.items, { ...item, observation: '', createdAt: new Date() }]
     }));
   };
 
   const handleRemoveItem = async (index) => {
     const itemToRemove = orders.items[index];
 
-    // Verifica se o item ainda não foi entregue
     if (itemToRemove.status === 'entregue') {
       alert("Este item já foi entregue e não pode ser removido.");
       return;
@@ -58,21 +58,16 @@ export default function Mesa() {
 
     try {
       const orderId = orders._id;
-      console.log(orderId);
-
-      // Atualiza o pedido no banco de dados, removendo o item
       const updatedItems = orders.items.filter((_, i) => i !== index);
-      console.log(updatedItems);
 
       await axios.put(`http://${process.env.REACT_APP_IP}:${process.env.REACT_APP_PORT}/order/delete/${orderId}`, {
         items: updatedItems
       });
 
-      // Atualiza o estado local para refletir a remoção do item
       setOrders((prevOrders) => ({
         ...prevOrders,
         items: updatedItems,
-        total: prevOrders.total - itemToRemove.price // Subtrai o valor do item removido do total
+        total: prevOrders.total - itemToRemove.price
       }));
 
       alert("Item removido com sucesso!");
@@ -86,7 +81,7 @@ export default function Mesa() {
   const handleUpdateObservation = (index, observation) => {
     setOrders((prevOrders) => {
       const newItems = [...prevOrders.items];
-      newItems[index].observation = observation; // Atualiza a observação do item
+      newItems[index].observation = observation;
       return {
         ...prevOrders,
         items: newItems
@@ -105,8 +100,7 @@ export default function Mesa() {
     try {
       const orderId = orders._id;
       const tableNumber = orders.tableNumber;
-      console.log(orderId);
-      console.log(tableNumber);
+
       await axios.put(`http://${process.env.REACT_APP_IP}:${process.env.REACT_APP_PORT}/order/${orderId}`, {
         status: 'pago'
       });
@@ -115,7 +109,6 @@ export default function Mesa() {
         status: 'livre'
       });
 
-      // Atualiza o estado local para refletir o status "pago"
       setOrders({
         status: 'pago',
         total: 0,
@@ -123,7 +116,7 @@ export default function Mesa() {
       });
 
       alert('Pedido marcado como pago!');
-      navigate('/mesas'); // Redireciona para a página das mesas
+      navigate('/mesas');
 
     } catch (error) {
       console.error('Erro ao marcar o pedido como pago:', error);
@@ -147,7 +140,6 @@ export default function Mesa() {
         }))
       };
 
-      // Enviar o pedido para a cozinha
       const response = await axios.post(`http://${process.env.REACT_APP_IP}:${process.env.REACT_APP_PORT}/order`, orderData);
 
       if (response.status === 201) {
@@ -156,16 +148,14 @@ export default function Mesa() {
         alert("Pedido atualizado com sucesso!");
       }
 
-      // Atualizar o status dos itens para "emPreparo" após serem enviados
       setOrders((prevOrders) => ({
         ...prevOrders,
         items: prevOrders.items.map(item => ({
           ...item,
-          status: 'emPreparo' // Atualiza o status dos itens que foram enviados
+          status: 'emPreparo'
         }))
       }));
       navigate('/mesas');
-
 
     } catch (error) {
       console.error('Erro ao enviar para a cozinha ou marcar mesa como ocupada:', error);
@@ -187,12 +177,11 @@ export default function Mesa() {
       alert("Pedido atualizado com sucesso!");
     }
 
-    // Atualizar o status dos itens para "emPreparo" após serem enviados
     setOrders((prevOrders) => ({
       ...prevOrders,
       items: prevOrders.items.map(item => ({
         ...item,
-        status: 'emPreparo' // Atualiza o status dos itens que foram enviados
+        status: 'emPreparo'
       }))
     }));
   };
@@ -219,8 +208,6 @@ export default function Mesa() {
                         <> - Status: {item.status}</>
                       )}
                     </span>
-
-                    {/* Botão para excluir o item */}
                     <button
                       className="btn btn-danger"
                       onClick={() => handleRemoveItem(index)}
@@ -229,7 +216,6 @@ export default function Mesa() {
                     </button>
                   </div>
 
-                  {/* Campo para adicionar observação ao item */}
                   <textarea
                     className="form-control mt-2"
                     value={item.observation}
@@ -243,22 +229,34 @@ export default function Mesa() {
             <p>Nenhum item no pedido em preparo.</p>
           )}
 
+          {/* Condiciona a exibição dos botões com base no estado do pedido */}
+          {(!orders._id || orders.status === 'emAtendimento') && (
+            <button onClick={sendToKitchen} className="btn btn-primary m-3">
+              Enviar pedido
+            </button>
+          )}
 
-          <button onClick={sendToKitchen} className="btn btn-primary m-3">
-            Enviar pedido
-          </button>
+          {orders._id && orders.status === 'emPreparo' && (
+            <>
+              <button onClick={updateKitchen} className="btn btn-primary m-3">
+                Atualizar pedido
+              </button>
+              <button onClick={closeOrder} className="btn btn-primary m-3">
+                Fechar Comanda
+              </button>
+            </>
+          )}
 
-          <button onClick={updateKitchen} className="btn btn-primary m-3">
-            Atualizar pedido
-          </button>
-
-          <button onClick={closeOrder} className="btn btn-primary m-3">
-            Fechar Comanda
-          </button>
-
-          <button onClick={markAsPaid} className="btn btn-primary m-3">
-            Marcar como Pago
-          </button>
+          {orders.status === 'aguardandoPagamento' && (
+            <>
+              <button onClick={updateKitchen} className="btn btn-primary m-3">
+                Atualizar pedido
+              </button>
+              <button onClick={markAsPaid} className="btn btn-primary m-3">
+                Marcar como Pago
+              </button>
+            </>
+          )}
         </div>
       </div>
     </div>
