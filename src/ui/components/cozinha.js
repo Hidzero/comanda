@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import Header from './header.js';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 export default function TelaCozinha() {
   const [orders, setOrders] = useState([]);
+  const navigate = useNavigate(); // Navegação
+
 
   // Função para buscar todos os pedidos com status "em preparo"
   const getOrders = async () => {
@@ -15,28 +18,72 @@ export default function TelaCozinha() {
     }
   };
 
-  // Função para marcar um item como entregue
-  const handleMarkAsDelivered = async (orderId, itemId) => {
-    try {
-      console.log('orderId:', orderId);
-      console.log('itemId:', itemId);
-      await axios.put(`http://${process.env.REACT_APP_IP}:${process.env.REACT_APP_PORT}/order/${orderId}/items/${itemId}/status`, {
-        items: [{status: 'entregue'}]
+// Função para marcar um item como entregue e atualizar o estado localmente
+const handleMarkAsDelivered = async (orderId, itemId) => {
+  try {
+    // Atualiza o status no banco de dados
+    await axios.put(`http://${process.env.REACT_APP_IP}:${process.env.REACT_APP_PORT}/order/entregue/${orderId}/${itemId}`, {
+      status: 'entregue'
+    });
+
+    // Atualiza o estado localmente sem precisar fazer uma nova requisição
+    setOrders((prevOrders) => {
+      return prevOrders.map(order => {
+        if (order._id.toString() === orderId.toString()) {
+          return {
+            ...order,
+            items: order.items.map(item =>
+              item._id.toString() === itemId.toString() 
+                ? { ...item, status: 'entregue' } // Atualiza apenas o status
+                : item
+            )
+          };
+        }
+        return order; // Retorna o pedido sem alterações
       });
-      // Atualiza a lista de pedidos ao marcar um item como entregue
-      getOrders();
-    } catch (error) {
-      console.error('Erro ao marcar como entregue:', error);
-    }
-  };
+    });
+
+    // Navega para a página de mesas após atualizar o pedido
+    navigate('/mesas');
+
+  } catch (error) {
+    console.error('Erro ao marcar item como entregue:', error);
+  }
+};
+
 
   useEffect(() => {
     getOrders();
   }, []);
 
-  const hasPendingItems = orders.some(order =>
-    order.items.some(item => item.status === 'pendente')
+  const hasPendingItems = Array.isArray(orders) && orders.some(order =>
+    Array.isArray(order.items) && order.items.some(item => item.status === 'emPreparo')
   );
+
+
+  const comboName = (name) => {
+    if (name === 'Panceta/ Torresmo/ Carne Seca/ Linguiça Mineira/ Queijo/ Aipim') {
+      return 'Combo 1'
+    }
+    else if (name === 'Panceta/ Torresmo/ Carne Seca/ Linguica Mineira/ Aipim') {
+      return 'Combo 2'
+    }
+    else if (name === 'Panceta/ Torresmo/ Carne Seca/ Aipim') {
+      return 'Combo 3'
+    }
+    else if (name === 'Panceta/ Carne Seca/ Aipim') {
+      return 'Combo 4'
+    }
+    else if (name === 'Torresmo/ Carne Seca/ Aipim') {
+      return 'Combo 5'
+    }
+    else if (name === 'Panceta/ Torresmo/ Aipim') {
+      return 'Combo 6'
+    }
+    else {
+      return ''
+    }
+  };
 
   return (
     <div>
@@ -47,18 +94,27 @@ export default function TelaCozinha() {
           <p>Nenhum pedido em preparo.</p>
         ) : (
           <div className="orders-grid">
-            {orders.map((order) =>
-              order.items
-                // Filtra apenas itens que estão com o status "pendente"
-                .filter(item => item.status === 'pendente' && item.category !== 'nao alcoolico' && item.category !== 'cerveja 600ml' && item.category !== 'long neck' && item.category !== 'drinks prontos')
+            {Array.isArray(orders) && orders.map((order) =>
+              Array.isArray(order.items) && order.items
+                .filter(item =>
+                  item.status === 'emPreparo' &&
+                  item.category !== 'nao alcoolico' &&
+                  item.category !== 'cerveja 600ml' &&
+                  item.category !== 'long neck' &&
+                  item.category !== 'drinks prontos'
+                )
                 .map((item, index) => (
                   <div key={index} className="order-card">
-                    <h3>Mesa {order.tableNumber}</h3>
+                    <div className='d-flex flex-column align-items-center'>
+                      <h3>Mesa {order.tableNumber}</h3>
+                      <hr />
+                      <h3 className='text-red'> <strong>{comboName(item.name)}</strong></h3>
+                    </div>
                     <p><strong>Pedido:</strong> {item.name}</p>
                     <p><strong>Observações:</strong> {item.observation || 'Nenhuma'}</p>
                     <p><strong>Tempo do pedido:</strong> {Math.round((new Date() - new Date(item.createdAt)) / 60000)} minutos atrás</p>
                     <button
-                      className="btn btn-success"
+                      className="btn btn-success d-flex justify-content-center"
                       onClick={() => handleMarkAsDelivered(order._id, item._id)}
                     >
                       Marcar como Entregue
@@ -66,6 +122,8 @@ export default function TelaCozinha() {
                   </div>
                 ))
             )}
+
+
           </div>
         )}
       </div>
@@ -74,6 +132,10 @@ export default function TelaCozinha() {
           max-width: 1200px;
           margin: 0 auto;
           padding: 20px;
+        }
+
+        .text-red {
+          color: red;
         }
 
         .orders-grid {
@@ -122,7 +184,7 @@ export default function TelaCozinha() {
           background-color: darkgreen;
         }
 
-        `}</style>
+      `}</style>
     </div>
   );
 }

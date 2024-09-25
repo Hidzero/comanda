@@ -41,7 +41,9 @@ export async function getTableById(req, res) {
 
 export async function updateTable(req, res) {
     try {
-        const updatedTable = await tableRepository.updateById(req.params.id, req.body);
+        const status = req.body.status;
+        const updatedTable = await tableRepository.updateStatusByTableNumber(req.params.id, status);
+
         res.status(200).json({
             statusCode: 200,
             message: "Mesa atualizada",

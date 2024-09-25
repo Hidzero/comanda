@@ -6,7 +6,7 @@ const MenuList = ({ items, handleAddItem }) => (
   <div className="menu-bar mb-3 d-flex">
     {items.map(item => (
       <MenuItem
-        key={item.id}
+        key={item._id}
         combo_name={item.combo_name}
         name={item.name}
         price={item.price}

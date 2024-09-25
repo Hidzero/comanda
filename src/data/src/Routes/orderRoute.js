@@ -3,11 +3,13 @@ import * as OrderController from '../Controllers/orderController.js';
 
 const router = express.Router();
 
-router.post('/', OrderController.createOrUpdateOrder);
+router.post('/', OrderController.createOrder);
 router.get('/', OrderController.getOrders);
+router.get('/filter', OrderController.getOrdersByFilter);
 router.get('/:tableId', OrderController.getOrderByTableId);
-router.put('/:orderId/items/:itemId/status', OrderController.updateItemStatus);
-router.put('/:id', OrderController.updateOrder);
-router.delete('/:id', OrderController.deleteOrder);
+router.put('/update/:orderId', OrderController.updateOrder);
+router.put('/:id', OrderController.updateOrderStatus);
+router.put('/entregue/:orderId/:itemId', OrderController.markAsDelivered);
+router.put('/delete/:id', OrderController.removeItemFromOrder);
 
 export default router;

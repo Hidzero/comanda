@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import AuthContext from './authContext.js';
 
@@ -49,15 +49,13 @@ const Login = () => {
           placeholder="Senha"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          autoComplete='on'
           required
           style={styles.input}
         />
         {error && <p style={styles.error}>{error}</p>}  {/* Exibe a mensagem de erro */}
         <button type="submit" style={styles.button}>Entrar</button>
       </form>
-      <p style={styles.signupText}>
-        Não tem uma conta? <Link to="/signup">Cadastre-se</Link>
-      </p>
     </div>
   );
 };

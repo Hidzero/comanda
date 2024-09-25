@@ -1,147 +1,194 @@
+import orderRepository from "../Repositories/orderRepository.js";
 import OrderRepository from "../Repositories/orderRepository.js";
 import TableRepository from '../Repositories/tableRepository.js'; // Presumindo que você tenha um repositório para mesas
 
-export async function createOrUpdateOrder(req, res) {
+export async function createOrder(req, res) {
   try {
     const { tableNumber, items } = req.body;
 
-    // Verifica se já existe um pedido em aberto para a mesa
-    let existingOrder = await OrderRepository.findByTableNumberAndStatus(tableNumber, 'emPreparo');
+    const orderNumber = await orderRepository.generateOrderNumber();
 
-    if (existingOrder) {
-      // Adiciona apenas os novos itens, sem duplicar os existentes
-      const newItems = items.filter(newItem => {
-        return !existingOrder.items.some(existingItem =>
-          existingItem.name === newItem.name &&
-          existingItem.price === newItem.price &&
-          existingItem.category === newItem.category &&
-          existingItem.observation === newItem.observation
-        );
-      });
+    const newOrder = await OrderRepository.create({
+      tableNumber,
+      orderNumber: orderNumber,
+      items,
+      status: 'emPreparo'
+    });
 
-      await TableRepository.updateStatusByTableNumber(tableNumber, 'ocupada');
+    // Atualiza o status da mesa para "ocupada"
+    await TableRepository.updateStatusByTableNumber(tableNumber, 'ocupada');
 
-      // Atualiza o pedido existente com novos itens
-      existingOrder.items = [...existingOrder.items, ...newItems];
-      existingOrder = await OrderRepository.updateById(existingOrder._id, existingOrder);
+    res.status(201).json({
+      statusCode: 201,
+      message: "Pedido criado com sucesso",
+      data: newOrder
+    });
 
-      console.log('Pedido atualizado:', existingOrder);
-
-      res.status(200).json({
-        statusCode: 200,
-        message: "Pedido atualizado com sucesso",
-        data: existingOrder
-      });
-    } else {
-      // Cria um novo pedido
-      const orderNumber = await OrderRepository.generateOrderNumber();
-
-      const newOrder = await OrderRepository.create({
-        tableNumber,
-        orderNumber,
-        items,
-        status: 'emPreparo'  // Define o status inicial como "em preparo"
-      });
-
-      // Atualiza o status da mesa para "ocupada"
-        await TableRepository.updateStatusByTableNumber(tableNumber, 'ocupada');
-
-      res.status(201).json({
-        statusCode: 201,
-        message: "Pedido criado com sucesso",
-        data: newOrder
-      });
-    }
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 }
 
-  export async function getOrders(req, res) {
-    try {
-        const orders = await OrderRepository.findAll();
-        res.status(200).json({
-            statusCode: 200,
-            message: "Pedidos",
-            data: orders
-        });
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
+export async function getOrders(req, res) {
+  try {
+    const orders = await OrderRepository.findAll();
+    res.status(200).json({
+      statusCode: 200,
+      message: "Pedidos",
+      data: orders
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 }
-  
-  
+
+export async function getOrdersByFilter(req, res) {
+  try {
+    const { startDate, endDate, page = 1, limit = 30 } = req.query;
+
+    // Criar um filtro básico de data
+    const dateFilter = {};
+    if (startDate) {
+      dateFilter.createdAt = { $gte: new Date(startDate) }; // Filtra a partir da data inicial
+    }
+    if (endDate) {
+      if (!dateFilter.createdAt) dateFilter.createdAt = {};
+      dateFilter.createdAt.$lte = new Date(new Date(endDate).setHours(23, 59, 59, 999)); // Filtra até o fim da data final
+    }
+
+    // Buscar os pedidos no banco com base no filtro de data e paginação
+    const orders = await OrderRepository.findByFilter(dateFilter, page, limit);
+
+    res.status(200).json({
+      statusCode: 200,
+      message: 'Pedidos encontrados',
+      data: orders
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+}
 
 export async function getOrderByTableId(req, res) {
-    try {
+  try {
+    const orders = await OrderRepository.findByTableIdAndStatus(req.params.tableId, 'emPreparo');
 
-        const orders = await OrderRepository.findByTableId(req.params.tableId);
-        res.status(200).json({
-            statusCode: 200,
-            message: "Pedidos da mesa",
-            data: orders
-        });
-    } catch (error) {
-        res.status(500).json({ message: error.message });
+    if (orders.length === 0) {
+      return res.status(404).json({
+        statusCode: 404,
+        message: "Nenhum pedido em preparo para essa mesa."
+      });
     }
+
+    res.status(200).json({
+      statusCode: 200,
+      message: "Pedidos em preparo",
+      data: orders
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 }
+
 
 export async function updateItemStatus(req, res) {
-    try {
-      const { orderId, itemId } = req.params;
-      const status = req.body.items[0].status;
-  
-      // Busca o pedido pelo ID
-      const order = await OrderRepository.findById(orderId);
-      
-  
-      if (!order) {
-        return res.status(404).json({ message: 'Pedido não encontrado' });
-      }
-  
-      // Atualiza o status do item
-      const itemIndex = order.items.findIndex(item => item._id.toString() === itemId);
+  try {
+    const { orderId, itemId } = req.params;
+    const status = req.body;
 
-  
-      if (itemIndex === -1) {
-        return res.status(404).json({ message: 'Item não encontrado no pedido' });
-      }
-  
-      order.items[itemIndex].status = status; // Atualiza o status do item
-      await order.save(); // Salva a alteração no banco
-  
-      res.status(200).json({
-        statusCode: 200,
-        message: 'Status do item atualizado com sucesso',
-        data: order
-      });
-    } catch (error) {
-      res.status(500).json({ message: error.message });
-    }
+    const res = await OrderRepository.updateItemStatus(orderId, itemId, status);
+
+    res.status(200).json({
+      statusCode: 200,
+      message: 'Status do item atualizado com sucesso',
+      data: order
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
-  
-
-export async function updateOrder(req, res) {
-    try {
-        const updatedOrder = await OrderRepository.updateById(req.params.id, req.body);
-        res.status(200).json({
-            statusCode: 200,
-            message: "Pedido atualizado",
-            data: updatedOrder
-        });
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
 }
 
-export async function deleteOrder(req, res) {
-    try {
-        await OrderRepository.deleteById(req.params.id);
-        res.status(200).json({
-            statusCode: 200,
-            message: "Pedido deletado"
-        });
-    } catch (error) {
-        res.status(500).json({ message: error.message });
+
+export async function updateOrder(req, res) {
+  try {
+    const data = {
+      items: req.body
     }
+    const updatedOrder = await OrderRepository.updateById(req.params.orderId, data);
+    console.log(updatedOrder);
+
+    res.status(200).json({
+      statusCode: 200,
+      message: "Pedido atualizado",
+      data: updatedOrder
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+}
+
+export async function updateOrderStatus(req, res) {
+  try {
+    const updatedOrder = await OrderRepository.updateById(req.params.id, req.body);
+    res.status(200).json({
+      statusCode: 200,
+      message: "Status do pedido atualizado",
+      data: updatedOrder
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+}
+
+export async function markAsDelivered(req, res) {
+  try {
+    // O `itemId` é o ID do item que você quer atualizar no array `items`
+    const { orderId, itemId } = req.params;
+    
+    // Atualiza o status do item no array `items`
+    const updatedOrder = await OrderRepository.updateItemStatus(orderId, itemId, req.body.status);
+
+    res.status(200).json({
+      statusCode: 200,
+      message: "Pedido entregue",
+      data: updatedOrder
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+}
+
+
+export async function deleteOrder(req, res) {
+  try {
+    await OrderRepository.deleteById(req.params.id);
+    res.status(200).json({
+      statusCode: 200,
+      message: "Pedido deletado"
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+}
+
+export async function removeItemFromOrder(req, res) {
+  try {
+    const orderId  = req.params.id;
+    const { items } = req.body;
+
+    const updatedOrder = await orderRepository.updateById(orderId, { items }, { new: true });
+    console.log(updatedOrder);
+
+    if (!updatedOrder) {
+      return res.status(404).json({ message: 'Pedido não encontrado' });
+    }
+
+    res.status(200).json({
+      statusCode: 200,
+      message: 'Item removido com sucesso',
+      data: updatedOrder
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 }

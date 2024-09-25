@@ -40,19 +40,23 @@ export const naoAlcoolicos = [
 { id: 2, name: 'GUARANÁ ANTARTICA ZERO', price: 7.00, description: 'LATA' },
 { id: 3, name: 'PEPSI', price: 7.00, description: 'LATA' },
 { id: 4, name: 'PEPSI BLACK', price: 7.00, description: 'LATA' },
-{ id: 5, name: 'SUKITA SABORES', price: 7.00, description: '' },
+{ id: 5, name: 'COCA COLA KS', price: 7.00, description: '290ml' },
 { id: 6, name: 'COCA COLA', price: 8.00, description: 'LATA' },
 { id: 7, name: 'TÔNICA', price: 7.00, description: '' },
 { id: 8, name: 'H20H ', price: 8.00, description: '500ml' },
 { id: 9, name: 'GATORADE', price: 8.00, description: '' },
-{ id: 10, name: 'ÁGUA SEM GÁS ', price: 3.00, description: '500ml' },
-{ id: 11, name: 'ÁGUA COM GÁS ', price: 4.00, description: '500ml' },
+{ id: 10, name: 'ÁGUA SEM GÁS ', price: 5.00, description: '500ml' },
+{ id: 11, name: 'ÁGUA COM GÁS ', price: 5.00, description: '500ml' },
 { id: 12, name: 'RED BULL ', price: 12.00, description: '250ml' },
 ];
 
 export const drinksProntos = [
 { id: 1, name: 'BEATS', price: 10.00, description: 'LONG NECK' },
 { id: 2, name: 'SMIRNOFF ICE', price: 10.00, description: 'LONG NECK' },
+{ id: 3, name: 'DOSE CACHAÇA', price: 10.00, description: 'LONG NECK' },
+{ id: 4, name: 'DOSE WHISKEY', price: 10.00, description: 'LONG NECK' },
+{ id: 5, name: 'DOSE CACHAÇA', price: 10.00, description: 'LONG NECK' },
+
 ];
 
 export const cerveja600ml = [
