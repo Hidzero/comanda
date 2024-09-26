@@ -19,7 +19,7 @@ export const porcoesSeparadasData = [
 { id: 8, name: 'Coxinha de frango empanado sem pimenta', price: 40.00, description: 'Contem 10 unidades' },
 { id: 9, name: 'Coxinha de frango empanado com pimenta', price: 40.00, description: 'Contem 10 unidades' },
 { id: 10, name: 'Salame', price: 20.00, description: '' },
-{ id: 11, name: 'Queijo qualy', price: 10.00, description: '100g' },
+{ id: 11, name: 'Queijo coalho', price: 10.00, description: '100g' },
 { id: 12, name: 'Gurjão de peixe', price: 60.00, description: '' },
 ];
 
@@ -31,8 +31,8 @@ export const meiaPorcao = [
 ];
 
 export const churrascoNoPalito = [
-  { id: 1, name: 'Misto', price: 10.00, description: 'Unidade' },
-  { id: 1, name: 'Carne', price: 10.00, description: 'Unidade' },
+  { id: 1, name: 'Churrasquinho Misto', price: 10.00, description: 'Unidade' },
+  { id: 1, name: 'Churrasquinho de Carne', price: 10.00, description: 'Unidade' },
 ];
 
 export const naoAlcoolicos = [
@@ -40,21 +40,22 @@ export const naoAlcoolicos = [
 { id: 2, name: 'GUARANÁ ANTARTICA ZERO', price: 7.00, description: 'LATA' },
 { id: 3, name: 'PEPSI', price: 7.00, description: 'LATA' },
 { id: 4, name: 'PEPSI BLACK', price: 7.00, description: 'LATA' },
-{ id: 5, name: 'COCA COLA KS', price: 7.00, description: '290ml' },
+{ id: 5, name: 'COCA COLA KS', price: 6.00, description: '290ml' },
 { id: 6, name: 'COCA COLA', price: 8.00, description: 'LATA' },
-{ id: 7, name: 'TÔNICA', price: 7.00, description: '' },
-{ id: 8, name: 'H20H ', price: 8.00, description: '500ml' },
-{ id: 9, name: 'GATORADE', price: 8.00, description: '' },
-{ id: 10, name: 'ÁGUA SEM GÁS ', price: 5.00, description: '500ml' },
-{ id: 11, name: 'ÁGUA COM GÁS ', price: 5.00, description: '500ml' },
-{ id: 12, name: 'RED BULL ', price: 12.00, description: '250ml' },
-{ id: 13, name: 'GUARAVITA ', price: 3.00, description: '' },
-{ id: 14, name: 'SUCO ', price: 8.00, description: 'LATA' },
-{ id: 15, name: 'SPRITE ', price: 7.00, description: 'LATA' },
-{ id: 16, name: 'MATTE ', price: 12.00, description: '1,5L' },
-{ id: 17, name: 'SUCO  ', price: 12.00, description: '1L' },
-{ id: 18, name: 'COCA COLA', price: 9.00, description: '600ML' },
-{ id: 19, name: 'ENERGETICO', price: 10.00, description: '' },
+{ id: 7, name: 'COCA COLA', price: 15.00, description: '2L' },
+{ id: 8, name: 'TÔNICA', price: 7.00, description: '' },
+{ id: 9, name: 'H20H ', price: 8.00, description: '500ml' },
+{ id: 10, name: 'GATORADE', price: 8.00, description: '' },
+{ id: 11, name: 'ÁGUA SEM GÁS ', price: 5.00, description: '500ml' },
+{ id: 12, name: 'ÁGUA COM GÁS ', price: 5.00, description: '500ml' },
+{ id: 13, name: 'RED BULL ', price: 12.00, description: '250ml' },
+{ id: 14, name: 'GUARAVITA ', price: 3.00, description: '' },
+{ id: 15, name: 'SUCO ', price: 8.00, description: 'LATA' },
+{ id: 16, name: 'SPRITE ', price: 7.00, description: 'LATA' },
+{ id: 17, name: 'MATTE ', price: 12.00, description: '1,5L' },
+{ id: 18, name: 'SUCO  ', price: 12.00, description: '1L' },
+{ id: 19, name: 'COCA COLA', price: 9.00, description: '600ML' },
+{ id: 20, name: 'ENERGETICO', price: 10.00, description: '' },
 ];
 
 export const drinksProntos = [
@@ -104,6 +105,7 @@ export const cerveja600ml = [
 { id: 7, name: 'SPATEN', price: 13.00, description: '' },
 { id: 8, name: 'STELLA', price: 14.00, description: '' },
 { id: 9, name: 'BECKS', price: 15.00, description: '' },
+{ id: 10, name: 'CORONA', price: 15.00, description: '' },
 ];
 
 export const longNeck = [

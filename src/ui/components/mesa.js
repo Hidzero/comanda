@@ -61,33 +61,42 @@ export default function Mesa() {
 
   const handleRemoveItem = async (index) => {
     const itemToRemove = orders.items[index];
-
-    if (itemToRemove.status === 'entregue') {
-      // alert("Este item já foi entregue e não pode ser removido.");
-      return;
-    }
-
-    try {
-      const orderId = orders._id;
+  
+    // Exclui localmente se o pedido ainda não foi enviado (não possui `_id`)
+    if (!orders._id) {
       const updatedItems = orders.items.filter((_, i) => i !== index);
-
-      await axios.put(`http://${process.env.REACT_APP_IP}:${process.env.REACT_APP_PORT}/order/delete/${orderId}`, {
-        items: updatedItems
-      });
-
       setOrders((prevOrders) => ({
         ...prevOrders,
         items: updatedItems,
-        total: prevOrders.total - itemToRemove.price
+        total: prevOrders.total - (itemToRemove.price || 0)
       }));
-
-      // alert("Item removido com sucesso!");
-
+      return;
+    }
+  
+    // Exclui através da API se o pedido já foi enviado (possui `_id`)
+    try {
+      const orderId = orders._id;
+      const updatedItems = orders.items.filter((_, i) => i !== index);
+  
+      // Atualiza a lista de itens no backend
+      await axios.put(`http://${process.env.REACT_APP_IP}:${process.env.REACT_APP_PORT}/order/delete/${orderId}`, {
+        items: updatedItems
+      });
+  
+      // Atualiza o estado localmente
+      setOrders((prevOrders) => ({
+        ...prevOrders,
+        items: updatedItems,
+        total: prevOrders.total - (itemToRemove.price || 0)
+      }));
+  
     } catch (error) {
       console.error('Erro ao remover item:', error);
-      // alert('Erro ao remover item.');
+      alert('Erro ao remover item.');
     }
   };
+  
+
 
   const handleUpdateObservation = (index, observation) => {
     setOrders((prevOrders) => {
@@ -145,23 +154,23 @@ export default function Mesa() {
       const orderId = orders._id;
       const tableNumber = orders.tableNumber;
       const dividirConta = isDividing ? numPeople : 1; // Verifica se está dividindo a conta
-  
+
       // Cria um array com os métodos de pagamento e o valor por pessoa
       const formasPagamento = paymentMethods.map((tipo) => ({
         tipo: tipo,
         valor: totalPerPerson
       }));
-  
+
       await axios.put(`http://${process.env.REACT_APP_IP}:${process.env.REACT_APP_PORT}/order/${orderId}`, {
         dividirConta: dividirConta,
         formaPagamento: formasPagamento,
         status: 'pago'
       });
-  
+
       await axios.put(`http://${process.env.REACT_APP_IP}:${process.env.REACT_APP_PORT}/table/${tableNumber}`, {
         status: 'livre'
       });
-  
+
       setOrders({
         status: 'pago',
         total: 0,
@@ -170,13 +179,13 @@ export default function Mesa() {
       handleConfirmCloseOrder();
       // alert('Pedido marcado como pago!');
       navigate('/mesas');
-  
+
     } catch (error) {
       console.error('Erro ao marcar o pedido como pago:', error);
       // alert('Erro ao marcar o pedido como pago.');
     }
   };
-  
+
 
   const sendToKitchen = async () => {
     try {

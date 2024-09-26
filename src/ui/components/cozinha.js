@@ -58,7 +58,7 @@ export default function TelaCozinha() {
     // Define o intervalo para atualizar os pedidos a cada 10 segundos
     const interval = setInterval(() => {
       getOrders();
-    }, 10000);
+    }, 5000);
 
     // Limpa o intervalo quando o componente for desmontado
     return () => clearInterval(interval);
@@ -81,6 +81,42 @@ export default function TelaCozinha() {
       return 'Combo 5'
     } else if (name === 'Panceta/ Torresmo/ Aipim') {
       return 'Combo 6'
+    } else if (name === 'Carne seca com aipim') {
+      return 'Porção Separada'
+    } else if (name === 'Contrá filé com fritas') {
+      return 'Porção Separada'
+    } else if (name === 'Panceta com aipim') {
+      return 'Porção Separada'
+    } else if (name === 'Torresmo com aipim') {
+      return 'Porção Separada'
+    } else if (name === 'Linguiça com aipim') {
+      return 'Porção Separada'
+    } else if (name === 'Batata frita') {
+      return 'Porção Separada'
+    } else if (name === 'Porção de aipim') {
+      return 'Porção Separada'
+    } else if (name === 'Coxinha de frango empanado sem pimenta') {
+      return 'Porção Separada'
+    } else if (name === 'Coxinha de frango empanado com pimenta') {
+      return 'Porção Separada'
+    } else if (name === 'Salame') {
+      return 'Porção Separada'
+    } else if (name === 'Queijo coalho') {
+      return 'Porção Separada'
+    } else if (name === 'Gurjão de peixe') {
+      return 'Porção Separada'
+    } else if (name === 'Meia porção de torresmo') {
+      return 'Meia Porção'
+    } else if (name === 'Meia porção de panceta') {
+      return 'Meia Porção'
+    } else if (name === 'Meia porção de carne seca') {
+      return 'Meia Porção'
+    } else if (name === 'Meia porção de linguiça') {
+      return 'Meia Porção'
+    } else if (name === 'Churrasquinho Misto') {
+      return 'Churrasco no Palito'
+    } else if (name === 'Churrasquinho de Carne') {
+      return 'Churrasco no Palito'
     } else {
       return ''
     }
