@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import MenuList from './menuList.js';
 import axios from 'axios';
 
-function Cardapio({ handleAddItem }) {
-  const [activeCategory, setActiveCategory] = useState('combos'); // Por padrão, 'combos' é selecionado
+function Cardapio({ handleAddItem, searchTerm }) { // Adiciona a prop `searchTerm`
+  const [activeCategory, setActiveCategory] = useState('combos');
   const [menuData, setMenuData] = useState({
     combos: [],
     porcoesSeparadas: [],
@@ -13,17 +13,19 @@ function Cardapio({ handleAddItem }) {
     drinksProntos: [],
     cerveja600ml: [],
     longNeck: [],
+    doces: [],
+    sorvetes: [],
+    pf: [],
+    refeicao: [],
     outros: []
   });
   const [loading, setLoading] = useState(true);
 
-  // Função para buscar todos os itens do cardápio no MongoDB
   const getAllItems = async () => {
     try {
       const response = await axios.get(`http://${process.env.REACT_APP_IP}:${process.env.REACT_APP_PORT}/product`);
       const data = response.data;
 
-      // Filtra os itens por categoria e atualiza o estado
       setMenuData({
         combos: data.filter(item => item.category === 'combo'),
         porcoesSeparadas: data.filter(item => item.category === 'porcao'),
@@ -33,22 +35,30 @@ function Cardapio({ handleAddItem }) {
         drinksProntos: data.filter(item => item.category === 'drinks prontos'),
         cerveja600ml: data.filter(item => item.category === 'cerveja 600ml'),
         longNeck: data.filter(item => item.category === 'long neck'),
+        doces: data.filter(item => item.category === 'doces'),
+        sorvetes: data.filter(item => item.category === 'sorvetes'),
+        pf: data.filter(item => item.category === 'pf'),
+        refeicao: data.filter(item => item.category === 'refeicao'),
         outros: data.filter(item => item.category === 'outros')
       });
 
-      setLoading(false);  // Desativa o loader
+      setLoading(false);
     } catch (error) {
       console.error('Erro ao buscar itens:', error);
       setLoading(false);
     }
   };
 
-  // UseEffect para buscar os dados quando o componente for montado
   useEffect(() => {
     getAllItems();
   }, []);
 
-  // Função para renderizar a lista de itens da categoria ativa
+  // Filtra os itens do menu com base no `searchTerm`
+  const filterItems = (items) => {
+    if (!searchTerm) return items; // Se não houver termo de pesquisa, retorna todos os itens
+    return items.filter(item => item.name.toLowerCase().includes(searchTerm.toLowerCase()));
+  };
+
   const renderMenuList = () => {
     if (loading) {
       return <p>Carregando...</p>;
@@ -56,23 +66,31 @@ function Cardapio({ handleAddItem }) {
 
     switch (activeCategory) {
       case 'combos':
-        return <MenuList items={menuData.combos} handleAddItem={handleAddItem} />;
+        return <MenuList items={filterItems(menuData.combos)} handleAddItem={handleAddItem} />;
       case 'porcoesSeparadas':
-        return <MenuList items={menuData.porcoesSeparadas} handleAddItem={handleAddItem} />;
+        return <MenuList items={filterItems(menuData.porcoesSeparadas)} handleAddItem={handleAddItem} />;
       case 'meiaPorcao':
-        return <MenuList items={menuData.meiaPorcao} handleAddItem={handleAddItem} />;
+        return <MenuList items={filterItems(menuData.meiaPorcao)} handleAddItem={handleAddItem} />;
       case 'churrascoNoPalito':
-        return <MenuList items={menuData.churrascoNoPalito} handleAddItem={handleAddItem} />;
+        return <MenuList items={filterItems(menuData.churrascoNoPalito)} handleAddItem={handleAddItem} />;
       case 'naoAlcoolicos':
-        return <MenuList items={menuData.naoAlcoolicos} handleAddItem={handleAddItem} />;
+        return <MenuList items={filterItems(menuData.naoAlcoolicos)} handleAddItem={handleAddItem} />;
       case 'drinksProntos':
-        return <MenuList items={menuData.drinksProntos} handleAddItem={handleAddItem} />;
+        return <MenuList items={filterItems(menuData.drinksProntos)} handleAddItem={handleAddItem} />;
       case 'cerveja600ml':
-        return <MenuList items={menuData.cerveja600ml} handleAddItem={handleAddItem} />;
+        return <MenuList items={filterItems(menuData.cerveja600ml)} handleAddItem={handleAddItem} />;
       case 'longNeck':
-        return <MenuList items={menuData.longNeck} handleAddItem={handleAddItem} />;
+        return <MenuList items={filterItems(menuData.longNeck)} handleAddItem={handleAddItem} />;
+      case 'doces':
+        return <MenuList items={filterItems(menuData.doces)} handleAddItem={handleAddItem} />;
+      case 'sorvetes':
+        return <MenuList items={filterItems(menuData.sorvetes)} handleAddItem={handleAddItem} />;
+      case 'pf':
+        return <MenuList items={filterItems(menuData.pf)} handleAddItem={handleAddItem} />;
+      case 'refeicao':
+        return <MenuList items={filterItems(menuData.refeicao)} handleAddItem={handleAddItem} />;
       case 'outros':
-        return <MenuList items={menuData.outros} handleAddItem={handleAddItem} />;
+        return <MenuList items={filterItems(menuData.outros)} handleAddItem={handleAddItem} />;
       default:
         return null;
     }
@@ -106,13 +124,24 @@ function Cardapio({ handleAddItem }) {
           <li className={`menu-item ${activeCategory === 'longNeck' ? 'active' : ''}`}>
             <button onClick={() => setActiveCategory('longNeck')}>Long Neck</button>
           </li>
+          <li className={`menu-item ${activeCategory === 'doces' ? 'active' : ''}`}>
+            <button onClick={() => setActiveCategory('doces')}>Doces</button>
+          </li>
+          <li className={`menu-item ${activeCategory === 'sorvetes' ? 'active' : ''}`}>
+            <button onClick={() => setActiveCategory('sorvetes')}>Sorvetes</button>
+          </li>
+          <li className={`menu-item ${activeCategory === 'pf' ? 'active' : ''}`}>
+            <button onClick={() => setActiveCategory('pf')}>Prato Feito</button>
+          </li>
+          <li className={`menu-item ${activeCategory === 'refeicao' ? 'active' : ''}`}>
+            <button onClick={() => setActiveCategory('refeicao')}>Refeição</button>
+          </li>
           <li className={`menu-item ${activeCategory === 'outros' ? 'active' : ''}`}>
             <button onClick={() => setActiveCategory('outros')}>Outros</button>
           </li>
         </ul>
       </nav>
 
-      {/* Renderiza a lista de itens de acordo com a categoria ativa */}
       {renderMenuList()}
 
       <style jsx="true">
@@ -153,7 +182,7 @@ function Cardapio({ handleAddItem }) {
           }
 
           .menu-item.active button {
-            background-color: darkred; /* Cor diferente para a categoria ativa */
+            background-color: darkred;
           }
 
           .menu-bar::-webkit-scrollbar {

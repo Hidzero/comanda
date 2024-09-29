@@ -120,6 +120,70 @@ export const longNeck = [
 { id: 9, name: 'CORONA ZERO', price: 12.00, description: '' },
 ];
 
+export const doces = [
+  { id:1, name: 'Doce', price: 3.00, description: 'unidade' },
+]
+
+export const sorvetes = [
+  { id:1, name: 'Chocoblitz', price: 7.90, description: '' },
+  { id:2, name: 'Chocoblitz black', price: 7.90, description: '' },
+  { id:3, name: 'Start', price: 7.90, description: '' },
+  { id:4, name: 'Leitinho com Avella', price: 6.90, description: '' },
+  { id:5, name: 'Chocotella', price: 6.90, description: '' },
+  { id:6, name: 'Chocolate com Coco', price: 6.90, description: '' },
+  { id:7, name: 'Brigadeiro', price: 6.90, description: '' },
+  { id:8, name: 'Tentação', price: 6.90, description: '' },
+  { id:9, name: 'Gold Bem Casado', price: 11.90, description: '' },
+  { id:10, name: 'Gold Torta Holandesa', price: 11.90, description: '' },
+  { id:11, name: 'Speciale Toffee', price: 9.90, description: '' },
+  { id:12, name: 'Speciale Petit Gateau', price: 9.90, description: '' },
+  { id:13, name: 'Speciale Torta de Limão', price: 9.90, description: '' },
+  { id:14, name: 'Speciale Choqquito', price: 9.90, description: '' },
+  { id:15, name: 'Speciale ', price: 9.90, description: '' },
+  { id:16, name: 'Leitinho Trufado', price: 11.90, description: '' },
+  { id:17, name: 'Banoffee', price: 11.90, description: '' },
+  { id:18, name: 'Copão', price: 7.90, description: '' },
+  { id:19, name: 'Sunday', price: 6.50, description: '' },
+  { id:20, name: 'Caixa bombom', price: 12.90, description: '' },
+  { id:21, name: 'Pote Luigi', price: 13.90, description: '500ml' },
+  { id:22, name: 'Zero açucar de Coco', price: 6.00, description: '' },
+  { id:23, name: 'Pote Luigi zero açucar', price: 14.90, description: '' },
+  { id:24, name: 'Paleta leitinho trufado', price: 9.90, description: '' },
+  { id:25, name: 'Paleta Morando com leite condensado', price: 9.90, description: '' },
+  { id:26, name: 'Paleta Paçoquinha', price: 9.90, description: '' },
+  { id:27, name: 'Cremoso Chocolate', price: 4.50, description: '' },
+  { id:28, name: 'Cremoso Coco', price: 4.50, description: '' },
+  { id:29, name: 'Fazenda Morango', price: 4.50, description: '' },
+  { id:30, name: 'Fazenda Milho', price: 4.50, description: '' },
+  { id:31, name: 'Fazenda Doce de Leite', price: 4.50, description: '' },
+  { id:32, name: 'Frutas Açai', price: 4.00, description: '' },
+  { id:33, name: 'Frutas Maracujá', price: 4.00, description: '' },
+  { id:34, name: 'Frutas Uva', price: 4.00, description: '' },
+  { id:35, name: 'Frutas Limão', price: 4.00, description: '' },
+  { id:36, name: 'Smile', price: 4.00, description: '' },
+  { id:37, name: 'Chiclete', price: 3.00, description: '' },
+  { id:38, name: 'Unicornio', price: 4.50, description: '' },
+  { id:39, name: 'Dino', price: 6.00, description: '' },
+  { id:40, name: 'Brigalove', price: 5.50, description: '' },
+  { id:41, name: 'Moranguinho', price: 4.50, description: '' },
+  { id:42, name: 'Grego ', price: 9.90, description: '' },
+]
+
+export const pf = [
+  { id:1, name: 'PF Contra File com Fritas', price: 35.00, description: 'Prato Feito' },
+  { id:2, name: 'PF Carne Seca', price: 25.00, description: 'Prato Feito' },
+  { id:3, name: 'PF File de Frango', price: 25.00, description: 'Prato Feito' },
+  { id:4, name: 'PF Carré', price: 25.00, description: 'Prato Feito' },
+  { id:5, name: 'PF Linguiça Mineira', price: 25.00, description: 'Prato Feito' },
+]
+
+export const refeicao = [
+  { id:1, name: 'Guarnição', price: 20.00, description: '' },
+  { id:2, name: 'Arroz', price: 10.00, description: '' },
+  { id:3, name: 'Feijão', price: 5.00, description: '' },
+  { id:4, name: 'Salada', price: 7.00, description: '' },
+]
+
 export const outros = [
 { id: 1, name: 'PIRAQUE', price: 6.00, description: 'BISCOITO' },
 { id: 2, name: 'GOIABINHA', price: 5.00, description: 'BISCOITO' },
