@@ -53,17 +53,17 @@ export default function TelaCozinha() {
   }, []);
 
   const comboName = (name) => {
-    if (name === 'Panceta/ Torresmo/ Carne Seca/ Linguiça Mineira/ Queijo/ Aipim') {
+    if (name === '1 - Panceta/ Torresmo/ Carne Seca/ Linguiça Mineira/ Queijo/ Aipim') {
       return 'Combo 1';
-    } else if (name === 'Panceta/ Torresmo/ Carne Seca/ Linguica Mineira/ Aipim') {
+    } else if (name === '2 - Panceta/ Torresmo/ Carne Seca/ Linguica Mineira/ Aipim') {
       return 'Combo 2';
-    } else if (name === 'Panceta/ Torresmo/ Carne Seca/ Aipim') {
+    } else if (name === '3 - Panceta/ Torresmo/ Carne Seca/ Aipim') {
       return 'Combo 3';
-    } else if (name === 'Panceta/ Carne Seca/ Aipim') {
+    } else if (name === '4 - Panceta/ Carne Seca/ Aipim') {
       return 'Combo 4';
-    } else if (name === 'Torresmo/ Carne Seca/ Aipim') {
+    } else if (name === '5 - Torresmo/ Carne Seca/ Aipim') {
       return 'Combo 5';
-    } else if (name === 'Panceta/ Torresmo/ Aipim') {
+    } else if (name === '6 - Panceta/ Torresmo/ Aipim') {
       return 'Combo 6';
     } else if (['Carne seca com aipim', 'Contrá filé com fritas', 'Panceta com aipim', 'Torresmo com aipim', 'Linguiça com aipim', 'Batata frita', 'Porção de aipim', 'Coxinha de frango empanado sem pimenta', 'Coxinha de frango empanado com pimenta', 'Salame', 'Queijo coalho', 'Gurjão de peixe'].includes(name)) {
       return 'Porção Separada';
@@ -88,10 +88,9 @@ export default function TelaCozinha() {
             {items
               .filter(item =>
                 item.status === 'emPreparo' &&
-                item.category !== 'nao alcoolico' &&
-                item.category !== 'cerveja 600ml' &&
-                item.category !== 'long neck' &&
-                item.category !== 'drinks prontos' &&
+                item.category !== 'cerveja' &&
+                item.category !== 'refrigerante' &&
+                item.category !== 'doses' &&
                 item.category !== 'doces' &&
                 item.category !== 'sorvetes' &&
                 item.category !== 'outros'

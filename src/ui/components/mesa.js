@@ -216,7 +216,7 @@ export default function Mesa() {
           category: item.category,
           observation: item.observation,
           createdAt: item.createdAt,
-          status: item.status
+          status: item.status === 'entregue' ? 'entregue' : 'emPreparo' // Mantém o status 'entregue' se já estiver marcado
         }))
       };
 
@@ -227,7 +227,7 @@ export default function Mesa() {
           ...prevOrders,
           items: prevOrders.items.map(item => ({
             ...item,
-            status: 'emPreparo'
+            status: item.status === 'entregue' ? 'entregue' : 'emPreparo' // Mantém o status 'entregue' se já estiver marcado
           }))
         }));
         navigate('/mesas');
@@ -237,10 +237,14 @@ export default function Mesa() {
     }
   };
 
+
   const updateKitchen = async () => {
     const foodItems = orders.items;
     const orderData = {
-      items: [...foodItems]
+      items: foodItems.map(item => ({
+        ...item,
+        status: item.status === 'entregue' ? 'entregue' : 'emPreparo' // Mantém o status 'entregue' se já estiver marcado
+      }))
     };
 
     const response = await axios.put(`http://${process.env.REACT_APP_IP}:${process.env.REACT_APP_PORT}/order/update/${orders._id}`, orderData.items);
@@ -250,11 +254,12 @@ export default function Mesa() {
         ...prevOrders,
         items: prevOrders.items.map(item => ({
           ...item,
-          status: 'emPreparo'
+          status: item.status === 'entregue' ? 'entregue' : 'emPreparo' // Mantém o status 'entregue' se já estiver marcado
         }))
       }));
     }
   };
+
 
   return (
     <div>
@@ -282,21 +287,23 @@ export default function Mesa() {
           {orders.items && orders.items.length > 0 ? (
             <ul>
               {orders.items.map((item, index) => {
-                // Agrupar as bebidas
-                if (item.category === 'nao alcoolico' || item.category === 'drinks prontos' ||
-                  item.category === 'cerveja 600ml' || item.category === 'long neck' || item.category === 'outros' || item.category === 'doces' || item.category === 'sorvetes') {
-                  const groupedItems = orders.items.filter(i => i.name === item.name);
+                if (item.category === 'cerveja' || item.category === 'refrigerante' ||
+                  item.category === 'doses' || item.category === 'outros' || item.category === 'doces' || item.category === 'sorvetes') {
+
+                  // Agrupa itens pelo nome e valor
+                  const groupedItems = orders.items.filter(i => i.name === item.name && i.price === item.price);
                   const quantity = groupedItems.length;
 
                   // Apenas renderiza um item agrupado
-                  if (index === orders.items.findIndex(i => i.name === item.name)) {
+                  if (index === orders.items.findIndex(i => i.name === item.name && i.price === item.price)) {
                     return (
                       <li key={index} className="order-item mb-3">
-                        <div className="d-flex justify-content-between align-items-center">
-                          <span>
-                            {item.name} - R${item.price ? item.price.toFixed(2) : '0.00'} - Quantidade: {quantity}
+                        <div className="d-flex flex-column">
+                          <span className="mb-2">
+                            <p>{item.name} - R${item.price ? item.price.toFixed(2) : '0.00'}</p>
+                            <p>Quantidade: {quantity}</p>
                           </span>
-                          <div>
+                          <div className="d-flex justify-content-end">
                             <button
                               className="btn btn-success me-2"
                               onClick={() => handleAddItem(item)}
@@ -317,16 +324,18 @@ export default function Mesa() {
                   return null; // Não renderiza itens duplicados agrupados
                 }
 
+
                 // Para itens não agrupados, renderiza normalmente
                 return (
                   <li key={index} className="order-item mb-3">
                     <div className="d-flex justify-content-between align-items-center">
                       <span>
-                        {item.name} - R${item.price ? item.price.toFixed(2) : '0.00'}
-                        {!(item.category === 'nao alcoolico' || item.category === 'drinks prontos' || item.category === 'cerveja 600ml' || item.category === 'long neck' || item.category === 'outros') && (
-                          <> - Status: {item.status}</>
-                        )}
+                        <p>{item.name} - R${item.price ? item.price.toFixed(2) : '0.00'}</p>
+                        <p>{!(item.category === 'nao alcoolico' || item.category === 'drinks prontos' || item.category === 'cerveja 600ml' || item.category === 'long neck' || item.category === 'outros') && (
+                          <>Status: {item.status === 'emPreparo' ? 'Em Preparo' : item.status}</>
+                        )}</p>
                       </span>
+
                       <button
                         className="btn btn-danger"
                         onClick={() => handleRemoveItem(index, false)} // Passando `isGrouped` como false
@@ -356,20 +365,27 @@ export default function Mesa() {
 
           {orders._id && orders.status === 'emPreparo' && (
             <>
-              <button onClick={updateKitchen} className="btn btn-primary m-3">
-                Atualizar pedido
-              </button>
-              <button onClick={closeOrder} className="btn btn-primary m-3">
-                Fechar Comanda
-              </button>
+              <div className='d-flex justify-content-end'>
+                <button onClick={updateKitchen} className="btn btn-primary m-3">
+                  Atualizar pedido
+                </button>
+                <button onClick={closeOrder} className="btn btn-primary m-3">
+                  Fechar Comanda
+                </button>
+              </div>
             </>
           )}
 
           {orders.status === 'aguardandoPagamento' && (
             <>
-              <button onClick={updateKitchen} className="btn btn-primary m-3">
-                Atualizar pedido
-              </button>
+              <div className='d-flex justify-content-end'>
+                <button onClick={updateKitchen} className="btn btn-primary m-3">
+                  Atualizar pedido
+                </button>
+                <button onClick={closeOrder} className="btn btn-primary m-3">
+                  Fechar Comanda
+                </button>
+              </div>
             </>
           )}
 

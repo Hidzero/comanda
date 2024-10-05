@@ -1,9 +1,8 @@
-// MenuList.js
 import React from 'react';
 import MenuItem from './menuItem.js';
 
 const MenuList = ({ items, handleAddItem }) => (
-  <div className="menu-bar mb-3 d-flex">
+  <div className="menu-list"> {/* Alterado para um container em forma de lista */}
     {items.map(item => (
       <MenuItem
         key={item._id}

@@ -23,7 +23,8 @@
     "test": "react-scripts test",
     "data": "cd src/data && npm run dev",
     "dev": "concurrently \"npm start\" \"npm run data\"",
-    "seed": "node src/data/src/Seeders/insertTables.js && node src/data/src/Seeders/insertProducts.js"
+    "products": "node src/data/src/Seeders/insertProducts.js",
+    "tables": "node src/data/src/Seeders/insertTables.js"
   },
   "eslintConfig": {
     "extends": [
