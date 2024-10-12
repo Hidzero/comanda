@@ -55,6 +55,7 @@ export const cerveja = [
   { id: 17, name: 'STELLA PURE GOLD', price: 10.50, description: 'LONG NECK' },
   { id: 18, name: 'CORONA', price: 11.00, description: 'LONG NECK' },
   { id: 19, name: 'CORONA ZERO ALCOOL', price: 12.00, description: 'LONG NECK' },
+  { id: 20, name: 'CHOPP BRAHMA', price: 7.00, description: '300ml' },
 ];
 
 export const refrigerante = [
@@ -78,6 +79,7 @@ export const refrigerante = [
   { id: 18, name: 'SUCO  ', price: 12.00, description: '1L' },
   { id: 19, name: 'COCA COLA', price: 9.00, description: '600ML' },
   { id: 20, name: 'ENERGETICO', price: 10.00, description: '' },
+  { id: 21, name: 'GUARANÁ ANTARTICA', price: 12.00, description: '2L' },
 ]
 
 export const doses = [

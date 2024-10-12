@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Cardapio from './cardapio.js';
 import axios from 'axios';
 import Header from './header.js';
@@ -19,6 +19,8 @@ export default function Mesa() {
   const [paymentMethods, setPaymentMethods] = useState(["dinheiro"]); // Inicializa com "dinheiro" como padrão
   const [searchTerm, setSearchTerm] = useState(""); // Estado para o filtro de pesquisa
   const totalPerPerson = orders.total / numPeople;
+
+  const printRef = useRef(); // Referência para o conteúdo a ser impresso
 
   const getOrdersByTableName = async (tableName) => {
     try {
@@ -46,21 +48,53 @@ export default function Mesa() {
     getOrdersByTableName(id);
   }, [id]);
 
+  const handlePrint = () => {
+    const groupedItems = orders.items.map(item => {
+      const duplicates = orders.items.filter(i => i.name === item.name && i.price === item.price);
+      return {
+        name: item.name,
+        price: item.price,
+        observation: item.observation,
+        quantity: duplicates.length
+      };
+    });
+
+    const uniqueItems = groupedItems.filter(
+      (item, index, self) => index === self.findIndex((i) => i.name === item.name && i.price === item.price)
+    );
+
+    navigate('/impressao', {
+      state: {
+        items: uniqueItems,
+        tableNumber: orders.tableNumber, // Número da mesa
+        orderNumber: orders.orderNumber  // Número do pedido
+      }
+    });
+  };
+
+
   const handleAddItem = (item) => {
+    const categoriesWithDescription = ['cerveja', 'refrigerante', 'doses', 'doces', 'sorvetes', 'outros'];
+
     setOrders((prevOrders) => ({
       ...prevOrders,
-      total: prevOrders.total + (item.price || '0.00'),
-      items: [...prevOrders.items, { ...item, observation: '', createdAt: new Date() }]
+      total: prevOrders.total + (item.price || 0),
+      items: [
+        ...prevOrders.items,
+        {
+          ...item,
+          observation: categoriesWithDescription.includes(item.category) ? item.description : '',
+          createdAt: new Date()
+        }
+      ]
     }));
   };
 
   const handleRemoveItem = async (index, isGrouped, itemName) => {
-    // Se o item é uma bebida agrupada
     if (isGrouped) {
       const groupedIndex = orders.items.findIndex(item => item.name === itemName);
 
       if (groupedIndex !== -1) {
-        // Se a quantidade é maior que 1, apenas diminua a quantidade
         if (orders.items[groupedIndex].quantity > 1) {
           setOrders((prevOrders) => {
             const newItems = [...prevOrders.items];
@@ -72,8 +106,7 @@ export default function Mesa() {
             };
           });
         } else {
-          // Se a quantidade é 1, remova o item completamente
-          handleRemoveItem(groupedIndex, false); // Recursivamente remove o item original
+          handleRemoveItem(groupedIndex, false);
         }
       }
       return;
@@ -81,7 +114,6 @@ export default function Mesa() {
 
     const itemToRemove = orders.items[index];
 
-    // Exclui localmente se o pedido ainda não foi enviado (não possui `_id`)
     if (!orders._id) {
       const updatedItems = orders.items.filter((_, i) => i !== index);
       setOrders((prevOrders) => ({
@@ -92,17 +124,14 @@ export default function Mesa() {
       return;
     }
 
-    // Exclui através da API se o pedido já foi enviado (possui `_id`)
     try {
       const orderId = orders._id;
       const updatedItems = orders.items.filter((_, i) => i !== index);
 
-      // Atualiza a lista de itens no backend
       await axios.put(`http://${process.env.REACT_APP_IP}:${process.env.REACT_APP_PORT}/order/delete/${orderId}`, {
         items: updatedItems
       });
 
-      // Atualiza o estado localmente
       setOrders((prevOrders) => ({
         ...prevOrders,
         items: updatedItems,
@@ -137,16 +166,12 @@ export default function Mesa() {
     setShowModal(false);
   };
 
-  // Função para lidar com mudança na quantidade de pessoas
   const handleNumPeopleChange = (e) => {
     const num = parseInt(e.target.value) || 1;
     setNumPeople(num);
-
-    // Atualiza o array de métodos de pagamento para o número de pessoas com "dinheiro" como padrão
     setPaymentMethods(new Array(num).fill("dinheiro"));
   };
 
-  // Função para lidar com a mudança de forma de pagamento para cada pessoa
   const handlePaymentMethodChange = (index, method) => {
     const newPaymentMethods = [...paymentMethods];
     newPaymentMethods[index] = method;
@@ -167,7 +192,6 @@ export default function Mesa() {
       const tableNumber = orders.tableNumber;
       const dividirConta = isDividing ? numPeople : 1;
 
-      // Marca todos os itens como "entregue"
       const updatedItems = orders.items.map((item) => ({
         ...item,
         status: 'entregue'
@@ -178,20 +202,17 @@ export default function Mesa() {
         valor: totalPerPerson
       }));
 
-      // Atualiza o pedido no backend com os itens marcados como "entregue"
       await axios.put(`http://${process.env.REACT_APP_IP}:${process.env.REACT_APP_PORT}/order/${orderId}`, {
         dividirConta: dividirConta,
         formaPagamento: formasPagamento,
         status: 'pago',
-        items: updatedItems, // Inclui os itens atualizados com o status "entregue"
+        items: updatedItems,
       });
 
-      // Atualiza o status da mesa para "livre"
       await axios.put(`http://${process.env.REACT_APP_IP}:${process.env.REACT_APP_PORT}/table/${tableNumber}`, {
         status: 'livre'
       });
 
-      // Atualiza o estado local
       setOrders({
         status: 'pago',
         total: 0,
@@ -216,7 +237,7 @@ export default function Mesa() {
           category: item.category,
           observation: item.observation,
           createdAt: item.createdAt,
-          status: item.status === 'entregue' ? 'entregue' : 'emPreparo' // Mantém o status 'entregue' se já estiver marcado
+          status: item.status === 'entregue' ? 'entregue' : 'emPreparo'
         }))
       };
 
@@ -227,7 +248,7 @@ export default function Mesa() {
           ...prevOrders,
           items: prevOrders.items.map(item => ({
             ...item,
-            status: item.status === 'entregue' ? 'entregue' : 'emPreparo' // Mantém o status 'entregue' se já estiver marcado
+            status: item.status === 'entregue' ? 'entregue' : 'emPreparo'
           }))
         }));
         navigate('/mesas');
@@ -237,13 +258,12 @@ export default function Mesa() {
     }
   };
 
-
   const updateKitchen = async () => {
     const foodItems = orders.items;
     const orderData = {
       items: foodItems.map(item => ({
         ...item,
-        status: item.status === 'entregue' ? 'entregue' : 'emPreparo' // Mantém o status 'entregue' se já estiver marcado
+        status: item.status === 'entregue' ? 'entregue' : 'emPreparo'
       }))
     };
 
@@ -254,22 +274,20 @@ export default function Mesa() {
         ...prevOrders,
         items: prevOrders.items.map(item => ({
           ...item,
-          status: item.status === 'entregue' ? 'entregue' : 'emPreparo' // Mantém o status 'entregue' se já estiver marcado
+          status: item.status === 'entregue' ? 'entregue' : 'emPreparo'
         }))
       }));
     }
   };
 
-
   return (
     <div>
       <Header />
-      <div className="container">
+      <div className="container p-3">
         <div>
           <h1>Mesa {id}</h1>
           <p>Total: R${orders.total ? orders.total.toFixed(2) : '0.00'}</p>
 
-          {/* Barra de Pesquisa */}
           <div className="search-bar mb-3">
             <input
               type="text"
@@ -279,83 +297,79 @@ export default function Mesa() {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-
           <h5>Itens do Cardápio:</h5>
           <Cardapio handleAddItem={handleAddItem} searchTerm={searchTerm} />
-
           <h5>Itens no Pedido:</h5>
-          {orders.items && orders.items.length > 0 ? (
-            <ul>
-              {orders.items.map((item, index) => {
-                if (item.category === 'cerveja' || item.category === 'refrigerante' ||
-                  item.category === 'doses' || item.category === 'outros' || item.category === 'doces' || item.category === 'sorvetes') {
+          <div ref={printRef}>
+            {orders.items && orders.items.length > 0 ? (
+              <ul>
+                {orders.items.map((item, index) => {
+                  if (item.category === 'cerveja' || item.category === 'refrigerante' ||
+                    item.category === 'doses' || item.category === 'outros' || item.category === 'doces' || item.category === 'sorvetes') {
 
-                  // Agrupa itens pelo nome e valor
-                  const groupedItems = orders.items.filter(i => i.name === item.name && i.price === item.price);
-                  const quantity = groupedItems.length;
+                    const groupedItems = orders.items.filter(i => i.name === item.name && i.price === item.price);
+                    const quantity = groupedItems.length;
 
-                  // Apenas renderiza um item agrupado
-                  if (index === orders.items.findIndex(i => i.name === item.name && i.price === item.price)) {
-                    return (
-                      <li key={index} className="order-item mb-3">
-                        <div className="d-flex flex-column">
-                          <span className="mb-2">
-                            <p>{item.name} - R${item.price ? item.price.toFixed(2) : '0.00'}</p>
-                            <p>Quantidade: {quantity}</p>
-                          </span>
-                          <div className="d-flex justify-content-end">
-                            <button
-                              className="btn btn-success me-2"
-                              onClick={() => handleAddItem(item)}
-                            >
-                              +
-                            </button>
-                            <button
-                              className="btn btn-danger"
-                              onClick={() => handleRemoveItem(index, true, item.name)} // Passando `isGrouped` como true
-                            >
-                              Excluir
-                            </button>
+                    if (index === orders.items.findIndex(i => i.name === item.name && i.price === item.price)) {
+                      return (
+                        <li key={index} className="order-item mb-3">
+                          <div className="d-flex flex-column">
+                            <span className="mb-2">
+                              <p>{item.name} - {item.observation} - R${item.price ? item.price.toFixed(2) : '0.00'}</p>
+                              <p>Quantidade: {quantity}</p>
+                            </span>
+                            <div className="d-flex justify-content-end">
+                              <button
+                                className="btn btn-success me-2"
+                                onClick={() => handleAddItem(item)}
+                              >
+                                +
+                              </button>
+                              <button
+                                className="btn btn-danger"
+                                onClick={() => handleRemoveItem(index, true, item.name)}
+                              >
+                                Excluir
+                              </button>
+                            </div>
                           </div>
-                        </div>
-                      </li>
-                    );
+                        </li>
+                      );
+                    }
+                    return null;
                   }
-                  return null; // Não renderiza itens duplicados agrupados
-                }
 
+                  return (
+                    <li key={index} className="order-item mb-3">
+                      <div className="d-flex justify-content-between align-items-center">
+                        <span>
+                          <p>{item.name} - R${item.price ? item.price.toFixed(2) : '0.00'}</p>
+                          <p>{!(item.category === 'nao alcoolico' || item.category === 'drinks prontos' || item.category === 'cerveja 600ml' || item.category === 'long neck' || item.category === 'outros') && (
+                            <>Status: {item.status === 'emPreparo' ? 'Em Preparo' : item.status}</>
+                          )}</p>
+                        </span>
 
-                // Para itens não agrupados, renderiza normalmente
-                return (
-                  <li key={index} className="order-item mb-3">
-                    <div className="d-flex justify-content-between align-items-center">
-                      <span>
-                        <p>{item.name} - R${item.price ? item.price.toFixed(2) : '0.00'}</p>
-                        <p>{!(item.category === 'nao alcoolico' || item.category === 'drinks prontos' || item.category === 'cerveja 600ml' || item.category === 'long neck' || item.category === 'outros') && (
-                          <>Status: {item.status === 'emPreparo' ? 'Em Preparo' : item.status}</>
-                        )}</p>
-                      </span>
-
-                      <button
-                        className="btn btn-danger"
-                        onClick={() => handleRemoveItem(index, false)} // Passando `isGrouped` como false
-                      >
-                        Excluir
-                      </button>
-                    </div>
-                    <textarea
-                      className="form-control mt-2"
-                      value={item.observation}
-                      onChange={(e) => handleUpdateObservation(index, e.target.value)}
-                      placeholder="Adicione uma observação ao item (ex: sem sal, extra queijo)"
-                    />
-                  </li>
-                );
-              })}
-            </ul>
-          ) : (
-            <p>Nenhum item no pedido em preparo.</p>
-          )}
+                        <button
+                          className="btn btn-danger"
+                          onClick={() => handleRemoveItem(index, false)}
+                        >
+                          Excluir
+                        </button>
+                      </div>
+                      <textarea
+                        className="form-control mt-2"
+                        value={item.observation}
+                        onChange={(e) => handleUpdateObservation(index, e.target.value)}
+                        placeholder="Adicione uma observação ao item (ex: sem sal, extra queijo)"
+                      />
+                    </li>
+                  );
+                })}
+              </ul>
+            ) : (
+              <p>Nenhum item no pedido em preparo.</p>
+            )}
+          </div>
 
           {(!orders._id || orders.status === 'emAtendimento') && (
             <button onClick={sendToKitchen} className="btn btn-primary m-3">
@@ -372,6 +386,9 @@ export default function Mesa() {
                 <button onClick={closeOrder} className="btn btn-primary m-3">
                   Fechar Comanda
                 </button>
+                <button onClick={handlePrint} className="btn btn-success m-3">
+                  Imprimir pedido
+                </button>
               </div>
             </>
           )}
@@ -385,11 +402,13 @@ export default function Mesa() {
                 <button onClick={closeOrder} className="btn btn-primary m-3">
                   Fechar Comanda
                 </button>
+                <button onClick={handlePrint} className="btn btn-success m-3">
+                  Imprimir pedido
+                </button>
               </div>
             </>
           )}
 
-          {/* Modal Bootstrap para fechar a comanda */}
           <div className={`modal fade ${showModal ? 'show d-block' : ''}`} tabIndex="-1" style={{ display: showModal ? 'block' : 'none', backgroundColor: 'rgba(0,0,0,0.5)' }}>
             <div className="modal-dialog">
               <div className="modal-content">

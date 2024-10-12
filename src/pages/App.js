@@ -8,6 +8,9 @@ import Cozinha from '../ui/components/cozinha.js';
 import Mesa from '../ui/components/mesa.js';
 import { AuthProvider } from './login/authContext.js';
 import PrivateRoute from './login/privateRoute.js';
+import Impressao from '../ui/components/impressao.js';
+import ImpressaoCaixa from '../ui/components/impressaoCaixa.js';
+import ImpressaoTodosPedidos from '../ui/components/impressãoTodosPedidos.js';
 
 export default function App() {
   return (
@@ -24,6 +27,9 @@ export default function App() {
             <Route path="/mesas" element={<Mesas />} />
             <Route path="/cozinha" element={<Cozinha />} />
             <Route path="/mesas/:id" element={<Mesa />} />
+            <Route path="/impressao" element={<Impressao />} />
+            <Route path="/impressao-caixa" element={<ImpressaoCaixa />} />
+            <Route path="/impressao-todos-pedidos" element={<ImpressaoTodosPedidos />} />
           </Route>
 
           {/* Redireciona para login por padrão */}

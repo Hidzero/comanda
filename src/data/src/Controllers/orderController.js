@@ -44,20 +44,20 @@ export async function getOrders(req, res) {
 
 export async function getOrdersByFilter(req, res) {
   try {
-    const { startDate, endDate, page = 1, limit = 30 } = req.query;
+    const { startDate, endDate, page = 1} = req.query;
 
     // Criar um filtro básico de data
     const dateFilter = {};
     if (startDate) {
-      dateFilter.createdAt = { $gte: new Date(startDate) }; // Filtra a partir da data inicial
+      dateFilter.createdAt = { $gte: new Date(startDate + 'T00:00:00.000Z') }; // Ajusta para meia-noite UTC
     }
     if (endDate) {
       if (!dateFilter.createdAt) dateFilter.createdAt = {};
-      dateFilter.createdAt.$lte = new Date(new Date(endDate).setHours(23, 59, 59, 999)); // Filtra até o final do dia
+      dateFilter.createdAt.$lte = new Date(endDate + 'T23:59:59.999Z'); // Ajusta para o fim do dia UTC
     }
 
     // Buscar os pedidos no banco com base no filtro de data e paginação
-    const orders = await OrderRepository.findByFilter(dateFilter, page, limit);
+    const orders = await OrderRepository.findByFilter(dateFilter, page);
 
     res.status(200).json({
       statusCode: 200,
@@ -68,6 +68,8 @@ export async function getOrdersByFilter(req, res) {
     res.status(500).json({ message: error.message });
   }
 }
+
+
 
 export async function getOrderByTableId(req, res) {
   try {

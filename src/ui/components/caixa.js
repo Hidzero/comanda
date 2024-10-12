@@ -1,6 +1,7 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Header from './header.js';
+import { useNavigate } from 'react-router-dom';
 
 // Função que retorna a data atual no formato YYYY-MM-DD
 const getTodayDate = () => {
@@ -10,39 +11,26 @@ const getTodayDate = () => {
 
 export default function Caixa() {
   const [orders, setOrders] = useState([]);
-  const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
-  const [startDate, setStartDate] = useState(getTodayDate()); // Data de início, com valor inicial como o dia atual
-  const [endDate, setEndDate] = useState(getTodayDate()); // Data de fim, com valor inicial como o dia atual
-  const printRefs = useRef({});
+  const [startDate, setStartDate] = useState(getTodayDate()); // Data de início
+  const [endDate, setEndDate] = useState(getTodayDate()); // Data de fim
+  const [filterDates, setFilterDates] = useState({ startDate: getTodayDate(), endDate: getTodayDate() }); // Estado para armazenar as datas de filtro
+  const navigate = useNavigate();
 
-  // Função para buscar os pedidos com filtro por data
-  const getOrders = async (page, startDate, endDate) => {
+  // Função para buscar todos os pedidos sem limite
+  const getOrders = async (startDate, endDate) => {
     try {
       setLoading(true);
       const response = await axios.get(`http://${process.env.REACT_APP_IP}:${process.env.REACT_APP_PORT}/order/filter`, {
         params: {
-          page,
-          limit: 30,
-          startDate: startDate || undefined, // Envia a data apenas se estiver definida
+          startDate: startDate || undefined,
           endDate: endDate || undefined,
         }
       });
       const data = Array.isArray(response.data.data) ? response.data.data : [];
 
-      // Filtra os pedidos com status 'pago'
       const paidOrders = data.filter(order => order.status === 'pago');
-
-      // Verifica se há duplicados antes de adicionar ao estado
-      setOrders(prevOrders => {
-        const uniqueOrders = paidOrders.filter(newOrder =>
-          !prevOrders.some(existingOrder => existingOrder._id === newOrder._id)
-        );
-        return page === 1 ? uniqueOrders : [...prevOrders, ...uniqueOrders]; // Substitui pedidos ao reiniciar a busca
-      });
-
-      setHasMore(paidOrders.length === 30);
+      setOrders(paidOrders);
       setLoading(false);
     } catch (error) {
       console.error('Erro ao buscar pedidos:', error);
@@ -52,27 +40,15 @@ export default function Caixa() {
 
   // Faz a requisição ao iniciar a página
   useEffect(() => {
-    getOrders(page, startDate, endDate); // Faz a busca já filtrada pela data atual ao carregar
-  }, [page, startDate, endDate]);
+    getOrders(filterDates.startDate, filterDates.endDate); // Usa as datas de filtro ao carregar
+  }, [filterDates]);
 
-  const handleScroll = () => {
-    if (window.innerHeight + window.scrollY >= document.body.scrollHeight - 2 && hasMore && !loading) {
-      setPage(prevPage => prevPage + 1);
-    }
+  const handlePrintAllOrders = () => {
+    navigate('/impressao-todos-pedidos', { state: { orders } }); // Redireciona para ImpressaoTodosPedidos com todos os pedidos
   };
 
-  useEffect(() => {
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [hasMore, loading]);
-
-  const handlePrint = (orderId) => {
-    const printContent = printRefs.current[orderId];
-    const originalContent = document.body.innerHTML;
-    document.body.innerHTML = printContent.innerHTML;
-    window.print();
-    document.body.innerHTML = originalContent;
-    window.location.reload();
+  const handlePrint = (order) => {
+    navigate('/impressao-caixa', { state: { order } }); // Redireciona para ImpressaoCaixa com um pedido
   };
 
   const formatDate = (dateString) => {
@@ -80,21 +56,22 @@ export default function Caixa() {
     return new Date(dateString).toLocaleString('pt-BR', options);
   };
 
-  // Quando o usuário clica em "Pesquisar", reiniciamos a página e os pedidos
   const handleSearch = () => {
-    setPage(1); // Reinicia a paginação para a primeira página
     setOrders([]); // Limpa os pedidos antes da nova pesquisa
-    getOrders(1, startDate, endDate); // Faz a busca com a nova data
+    setFilterDates({ startDate, endDate }); // Atualiza as datas de filtro com os valores atuais
   };
 
-  // Função para calcular o total de um pedido
+  useEffect(() => {
+    handleSearch();
+  }, [startDate, endDate]); // Adiciona handleSearch às dependências
+  
+
   const calculateOrderTotal = (order) => {
-    return order.items.reduce((total, item) => total + (item.price || 0), 0); // Soma os preços dos itens
+    return order.items.reduce((total, item) => total + (item.price || 0), 0);
   };
 
-  // Função para calcular o total de todas as comandas
   const calculateTotalAllOrders = () => {
-    return orders.reduce((total, order) => total + calculateOrderTotal(order), 0); // Soma os totais de todos os pedidos
+    return orders.reduce((total, order) => total + calculateOrderTotal(order), 0);
   };
 
   return (
@@ -103,32 +80,44 @@ export default function Caixa() {
       <div className="container">
         <h1>Pedidos</h1>
 
-        {/* Inputs para selecionar as datas */}
-        <div className="date-filters">
-          <label>
-            Data Inicial:
-            <input
-              type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              className="form-control"
-            />
-          </label>
-          <label>
-            Data Final:
-            <input
-              type="date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              className="form-control"
-            />
-          </label>
-          <label className='d-flex flex-column justify-content-end ms-2'>
-            <button onClick={handleSearch} className="btn btn-primary">
-              Pesquisar
+        <div className="row align-items-end mb-3">
+          <div className="col-auto">
+            <label className="form-label">
+              Data Inicial:
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="form-control"
+              />
+            </label>
+          </div>
+          <div className="col-auto">
+            <label className="form-label">
+              Data Final:
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="form-control"
+              />
+            </label>
+          </div>
+
+          {/* Botão para imprimir todos os pedidos */}
+          <div className="col text-end">
+            <button onClick={handlePrintAllOrders} className="btn btn-primary">
+              Imprimir todos os pedidos do dia
             </button>
-          </label>
+          </div>
         </div>
+        <hr />
+        <div className="total-all-orders">
+          <h3><strong>Total de todas as comandas:</strong> R${calculateTotalAllOrders().toFixed(2)}</h3>
+        </div>
+        <hr />
+
+
 
         {orders.length === 0 && !loading ? (
           <p>Nenhum pedido encontrado.</p>
@@ -136,7 +125,7 @@ export default function Caixa() {
           <>
             {orders.map((order) => (
               <div key={order._id} className="order-card mb-3">
-                <div ref={(el) => (printRefs.current[order._id] = el)}>
+                <div>
                   <h3>Mesa {order.tableNumber} - Pedido #{order.orderNumber} - {formatDate(order.createdAt)}</h3>
                   <ul>
                     {order.items.map((item, index) => (
@@ -145,30 +134,24 @@ export default function Caixa() {
                       </li>
                     ))}
                   </ul>
-                  {/* Exibe o total do pedido */}
                   <p><strong>Total do pedido:</strong> R${calculateOrderTotal(order).toFixed(2)}</p>
                 </div>
-                <button onClick={() => handlePrint(order._id)} className="btn btn-success">
+                <button onClick={() => handlePrint(order)} className="btn btn-success">
                   Imprimir este pedido
                 </button>
               </div>
             ))}
-            {/* Exibe o valor total de todas as comandas */}
-            <div className="total-all-orders">
-              <h3><strong>Total de todas as comandas:</strong> R${calculateTotalAllOrders().toFixed(2)}</h3>
-            </div>
           </>
         )}
 
         {loading && <p>Carregando mais pedidos...</p>}
-        {!hasMore && <p>Todos os pedidos foram carregados.</p>}
 
-        <button onClick={() => window.print()} className="btn btn-primary">
-          Imprimir todos os pedidos
-        </button>
+        {/* Botão para imprimir todos os pedidos */}
+
       </div>
 
-      <style jsx='true'>{`
+      {/* Estilização restaurada */}
+      <style jsx="true">{`
         .container {
           max-width: 1200px;
           margin: 0 auto;
@@ -223,6 +206,20 @@ export default function Caixa() {
         .total-all-orders {
           margin-top: 20px;
           font-size: 1.5rem;
+        }
+
+        .btn-primary {
+          padding: 10px;
+          background-color: blue;
+          color: white;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+          margin-top: 20px;
+        }
+
+        .btn-primary:hover {
+          background-color: darkblue;
         }
       `}</style>
     </div>

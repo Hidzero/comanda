@@ -15,9 +15,6 @@ export default function Header() {
                 <Link className="navbar-brand" as={Link} to="/cozinha">Cozinha</Link>
                 {/* <Link className="navbar-brand" as={Link} to="/logout">Logout</Link> */}
             </div>
-            <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDarkDropdown" aria-controls="navbarNavDarkDropdown" aria-expanded="false" aria-label="Toggle navigation">
-            <span className="navbar-toggler-icon"></span>
-            </button>
             <div className="collapse navbar-collapse" id="navbarNavDarkDropdown">
             </div>
         </div>
